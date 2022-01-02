@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"de.rwth.oosc.components"},{"l":"de.rwth.oosc.dialog"},{"l":"de.rwth.oosc.furniture"},{"l":"de.rwth.oosc.furniture.action"},{"l":"de.rwth.oosc.furniture.tool"},{"l":"de.rwth.oosc.guisample"},{"l":"de.rwth.oosc.guisample.util"},{"l":"de.rwth.oosc.structure"}];updateSearchResults();

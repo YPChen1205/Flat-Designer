@@ -1,4 +1,4 @@
-package de.rwth.oosc.util;
+package de.rwth.oosc.guisample.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
