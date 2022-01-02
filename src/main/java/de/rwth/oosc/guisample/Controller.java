@@ -1,4 +1,4 @@
-package de.rwth.oosc;
+package de.rwth.oosc.guisample;
 
 import javax.swing.DefaultListModel;
 

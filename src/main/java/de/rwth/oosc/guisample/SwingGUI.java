@@ -1,4 +1,4 @@
-package de.rwth.oosc;
+package de.rwth.oosc.guisample;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import de.rwth.oosc.util.IOUtil;
+import de.rwth.oosc.guisample.util.IOUtil;
 
 public class SwingGUI {
 	
