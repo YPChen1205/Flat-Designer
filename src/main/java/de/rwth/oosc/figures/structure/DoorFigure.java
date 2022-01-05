@@ -1,6 +1,7 @@
-package de.rwth.oosc.structure;
+package de.rwth.oosc.figures.structure;
 
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
 
@@ -17,6 +18,8 @@ public class DoorFigure extends RectangleFigure {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private AffineTransform transformation = new AffineTransform();
 	
 	public DoorFigure() {
 	}
@@ -40,6 +43,12 @@ public class DoorFigure extends RectangleFigure {
 		//ensure square bounds
 		rectangle.height = rectangle.width;
 	}
+	
+	@Override
+	public void transform(AffineTransform tx) {
+		super.transform(tx);
+		transformation.concatenate(tx);
+	}
 
 	@Override
 	protected void drawStroke(Graphics2D g) {
@@ -58,6 +67,7 @@ public class DoorFigure extends RectangleFigure {
 	    path.lineTo(r.getX(), r.getY()+r.getHeight());
 	    path.lineTo(r.getX(), r.getY()+r.getHeight()-DOOR_THICKNESS);
 	    path.lineTo(r.getX()+ r.getWidth(), r.getY()+r.getHeight()-DOOR_THICKNESS);
+	    path.transform(transformation);
 	    g.draw(path);
 	}
 }

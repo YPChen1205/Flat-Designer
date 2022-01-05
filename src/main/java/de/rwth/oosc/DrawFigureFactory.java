@@ -19,6 +19,8 @@ import org.jhotdraw.draw.connector.ChopBezierConnector;
 import org.jhotdraw.draw.decoration.ArrowTip;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.xml.DefaultDOMFactory;
+
+import de.rwth.oosc.figures.ArcFigure;
 /**
  * DrawFigureFactory.
  *
@@ -32,6 +34,7 @@ public class DrawFigureFactory extends DefaultDOMFactory {
         { DiamondFigure.class, "diamond" },
         { TriangleFigure.class, "triangle" },
         { BezierFigure.class, "bezier" },
+        { ArcFigure.class, "arc" },
         { RectangleFigure.class, "r" },
         { RoundRectangleFigure.class, "rr" },
         { LineFigure.class, "l" },
@@ -64,10 +67,10 @@ public class DrawFigureFactory extends DefaultDOMFactory {
     /** Creates a new instance. */
     public DrawFigureFactory() {
         for (Object[] o : classTagArray) {
-            addStorableClass((String) o[1], (Class) o[0]);
+            addStorableClass((String) o[1], (Class<?>) o[0]);
         }
         for (Object[] o : enumTagArray) {
-            addEnumClass((String) o[1], (Class) o[0]);
+            addEnumClass((String) o[1], (Class<?>) o[0]);
         }
     }
 }

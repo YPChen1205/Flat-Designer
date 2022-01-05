@@ -1,8 +1,6 @@
 package de.rwth.oosc.dialog;
 
 import java.awt.Component;
-import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -45,8 +43,6 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
@@ -55,8 +51,6 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override

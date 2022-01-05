@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 public class JPlaceholderTextField extends JTextField {
 

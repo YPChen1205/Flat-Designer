@@ -1,4 +1,4 @@
-package de.rwth.oosc.structure;
+package de.rwth.oosc.figures.structure;
 
 
 import java.awt.Graphics2D;
@@ -21,7 +21,6 @@ public class WindowFigure extends RectangleFigure {
 	
 	@Override
 	protected void drawStroke(Graphics2D g) {
-		// TODO Auto-generated method stub
 		Rectangle2D.Double myWindow = getBounds();
 		double x = myWindow.getX();
 		double y = myWindow.getY();

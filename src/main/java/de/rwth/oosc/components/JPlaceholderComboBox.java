@@ -38,7 +38,6 @@ public class JPlaceholderComboBox<E> extends JComboBox<E> {
 			
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				
 			}
 			
 			@Override
