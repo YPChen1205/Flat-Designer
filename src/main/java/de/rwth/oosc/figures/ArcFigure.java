@@ -1,26 +1,13 @@
 package de.rwth.oosc.figures;
 
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-
-import org.jhotdraw.draw.BezierFigure;
-import org.jhotdraw.draw.DrawingView;
 import org.jhotdraw.draw.LineFigure;
-import org.jhotdraw.draw.handle.BezierControlPointHandle;
-import org.jhotdraw.draw.handle.BezierNodeHandle;
 import org.jhotdraw.draw.handle.BezierOutlineHandle;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.geom.BezierPath;
-import org.jhotdraw.geom.BezierPath.Node;
 
 import de.rwth.oosc.figures.handle.ArcNodeHandle;
 
@@ -37,9 +24,7 @@ public class ArcFigure extends LineFigure {
 	public void setBounds(Double anchor, Double lead) {
 		// clear all points before
 		BezierPath newPath = new BezierPath();
-		System.out.println(newPath);
 		newPath.add(anchor);
-		System.out.println(newPath);
 		double deltaX = lead.x - anchor.x;
 		double deltaY = lead.y - anchor.y;
 		
@@ -47,7 +32,6 @@ public class ArcFigure extends LineFigure {
 		double r = length / 2;
 		
 		newPath.arcTo(r, r, Math.atan2(deltaY, deltaX),  false, true, lead.x, lead.y);
-		System.out.println(newPath);
 		if (newPath.size() > 2) {
 			newPath.remove(1);
 		}
@@ -71,6 +55,7 @@ public class ArcFigure extends LineFigure {
                     handles.addAll(handle.createSecondaryHandles());
                 }
                 break;
+             default:
         }
         return handles;
     }

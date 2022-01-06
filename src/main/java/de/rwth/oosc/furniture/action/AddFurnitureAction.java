@@ -10,19 +10,20 @@ import org.jhotdraw.draw.action.AbstractSelectedAction;
 
 import de.rwth.oosc.dialog.FurnitureSaveDialog;
 import de.rwth.oosc.furniture.CustomFurniture;
+import de.rwth.oosc.furniture.FurnitureModel;
 
-public class FurnitureSaveAction extends AbstractSelectedAction {
+public class AddFurnitureAction extends AbstractSelectedAction {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String ID = "FurnitureSaveAction.ID";
 
-	private String[] catalogues;
+	private FurnitureModel furnitureModel;
 
-	public FurnitureSaveAction(DrawingEditor editor, String[] catalogues) {
+	public AddFurnitureAction(DrawingEditor editor, FurnitureModel furnitureModel) {
 		super(editor);
 
-		this.catalogues = catalogues;
+		this.furnitureModel = furnitureModel;
 	}
 
 	@Override
@@ -35,15 +36,16 @@ public class FurnitureSaveAction extends AbstractSelectedAction {
 		} else {
 			gf.addAll(figureSet);
 		}
-		CustomFurniture customfuniture = new CustomFurniture(gf);
+		
 
-		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent(), catalogues);
+		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent(), furnitureModel.getCatalogues().toArray(new String[0]));
 
 		if (dialog.isApproved()) {
 			String name = dialog.getTypedName();
 			String catalogue = dialog.getSelectedCatalogue();
 			try {
-				customfuniture.saveFigure(name, catalogue);
+				CustomFurniture furniture = new CustomFurniture(name, gf);
+				furnitureModel.addFurniture(catalogue, furniture);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

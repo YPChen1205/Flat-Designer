@@ -10,7 +10,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -25,7 +24,6 @@ import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.event.BezierNodeEdit;
 import org.jhotdraw.draw.handle.AbstractHandle;
 import org.jhotdraw.draw.handle.BezierControlPointHandle;
-import org.jhotdraw.draw.handle.BezierNodeHandle;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.handle.HandleAttributeKeys;
 import org.jhotdraw.geom.BezierPath;
@@ -70,7 +68,6 @@ public class ArcNodeHandle extends AbstractHandle {
     public void draw(Graphics2D g) {
         BezierFigure f = getOwner();
         int size = f.getNodeCount();
-        boolean isClosed = f.isClosed();
         Color fillColor;
         Color strokeColor;
         if (getEditor().getTool().supportsHandleInteraction()) {
@@ -157,16 +154,6 @@ public class ArcNodeHandle extends AbstractHandle {
         //fireAreaInvalidated(n);
         figure.setNode(index, n);
         figure.changed();
-    }
-
-    private void fireAreaInvalidated(BezierPath.Node v) {
-        Rectangle2D.Double dr = new Rectangle2D.Double(v.x[0], v.y[0], 0, 0);
-        for (int i = 1; i < 3; i++) {
-            dr.add(v.x[i], v.y[i]);
-        }
-        Rectangle vr = view.drawingToView(dr);
-        vr.grow(getHandlesize(), getHandlesize());
-        fireAreaInvalidated(vr);
     }
 
     @Override
@@ -375,6 +362,7 @@ public class ArcNodeHandle extends AbstractHandle {
                 fireHandleRequestRemove(invalidatedArea);
 
                 break;
+            default:
         }
     }
 }

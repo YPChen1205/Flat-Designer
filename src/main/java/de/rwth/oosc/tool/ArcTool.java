@@ -3,7 +3,6 @@ package de.rwth.oosc.tool;
 import java.awt.event.MouseEvent;
 
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.tool.AbstractTool;
 import org.jhotdraw.draw.tool.CreationTool;
 
 public class ArcTool extends CreationTool {

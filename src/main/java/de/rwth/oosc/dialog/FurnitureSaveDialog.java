@@ -110,7 +110,6 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			return;
 		}
 		
-		System.out.println(optionPane.getValue());
 		int optionPaneValue = (int)optionPane.getValue();
 		
 		if (isVisible() && evt.getSource() == optionPane &&
