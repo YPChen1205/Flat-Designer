@@ -16,6 +16,16 @@ public class FurnitureModel {
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	private Map<String, Set<CustomFurniture>> model = new HashMap<>();
+	
+	private static FurnitureModel fmodel = new FurnitureModel();
+	
+	private FurnitureModel () {};
+	
+
+	public static FurnitureModel getFmodel() {
+		return fmodel;
+	}
+
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.addPropertyChangeListener(listener);
@@ -60,6 +70,7 @@ public class FurnitureModel {
 		}).start();
 	}
 	
+	
 	public void addFurnitures(String category, Collection<CustomFurniture> furnitures) {
 		var oldValue = deepClone();
 		boolean changed = basicAddFurnitures(category, furnitures);
@@ -70,13 +81,20 @@ public class FurnitureModel {
 	}
 	
 	public void removeFurniture(String category, CustomFurniture furniture) {
+		System.out.println("in RemoveFurniture");
 		Set<CustomFurniture> l = model.get(category);
 		
 		if (l != null) {
 			var oldValue = deepClone();
 			l.remove(furniture);
 			pcs.firePropertyChange("model", oldValue, deepClone());
+	
+			new Thread(()-> {
+				IOUtil.deleteFurniture(category, furniture.getName());
+			}).start();
 		}
+		
+
 	}
 	
 	public boolean hasFurniture(String category, String name) {

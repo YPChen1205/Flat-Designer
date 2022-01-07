@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
@@ -59,6 +61,7 @@ import de.rwth.oosc.figures.structure.WindowFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
 import de.rwth.oosc.furniture.action.AddFurnitureAction;
+import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
@@ -72,7 +75,7 @@ import de.rwth.oosc.tool.ToolButtonListener;
 public class DrawApplicationModel extends DefaultApplicationModel {
 	private static final long serialVersionUID = 1L;
 
-	private FurnitureModel furnitureModel = new FurnitureModel();
+	private FurnitureModel furnitureModel = FurnitureModel.getFmodel();
 
 	public static final String CUSTOM_LABELS = "de.rwth.oosc.flatdesigner.Labels";
 
@@ -188,6 +191,13 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 					button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 					button.setFocusable(false);
 					furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));
+					//--------------popup context menu-------------
+//					JPopupMenu menuRightClick = new JPopupMenu();
+//					JMenuItem itemRm = new JMenuItem("Remove");
+//					menuRightClick.add(itemRm);
+//					button.setComponentPopupMenu(menuRightClick);
+					button.addMouseListener(new RemoveFurnitureAction(furnitureModel, category, furniture));
+				
 					group.add(button);
 					btnCatalog.add(button);
 				}

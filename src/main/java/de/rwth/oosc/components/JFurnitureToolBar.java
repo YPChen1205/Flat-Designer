@@ -17,6 +17,7 @@ import org.jhotdraw.gui.JPopupButton;
 
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
+import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 public class JFurnitureToolBar extends JToolBar implements PropertyChangeListener {
@@ -46,13 +47,13 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		FurnitureModel model = (FurnitureModel) evt.getNewValue();
+		FurnitureModel furnitureModel = (FurnitureModel) evt.getNewValue();
 
 		removePopupButtons();
 
 		ButtonGroup group = (ButtonGroup) getClientProperty(buttongroupKey);
 
-		model.forEachCategory((category, furnitures) -> {
+		furnitureModel.forEachCategory((category, furnitures) -> {
 			JPopupButton btnCatalog = new JPopupButton();
 			btnCatalog.setFocusable(false);
 			btnCatalog.setToolTipText(category);
@@ -69,6 +70,7 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 				button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 				button.setFocusable(false);
 				furnitureCreationTool.addToolListener((ToolListener) getClientProperty(handlerKey));
+				button.addMouseListener(new RemoveFurnitureAction(furnitureModel, category, furniture));
 				group.add(button);
 				btnCatalog.add(button);
 			}
