@@ -2,7 +2,6 @@ package de.rwth.oosc.util;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,20 +10,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.jhotdraw.draw.AttributeKeys;
+import org.apache.commons.io.FileUtils;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
-import org.jhotdraw.draw.io.ImageOutputFormat;
 
 import de.rwth.oosc.DrawFigureFactory;
 import de.rwth.oosc.furniture.CustomFurniture;
@@ -186,5 +182,32 @@ public class IOUtil {
 			e.printStackTrace();
 		}
 
+	}
+
+	public static void deleteFurnitureCatalog(String catalog) {
+		try {
+			String defaultPath = new File(IOUtil.class.getResource(CUSTOM_FURNITURE_PATH).toURI()).getAbsolutePath();
+			String catalogPath = defaultPath + File.separator + catalog;
+			File catalogFile = new File(catalogPath);
+			if (catalogFile.isDirectory()) {
+				FileUtils.deleteDirectory(catalogFile);
+			}
+		} catch (URISyntaxException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void createCatalog(String catalog) {
+		try {
+			String defaultPath = new File(IOUtil.class.getResource(CUSTOM_FURNITURE_PATH).toURI()).getAbsolutePath();
+			String catalogPath = defaultPath + File.separator + catalog;
+			File newCatalog = new File(catalogPath);
+			newCatalog.mkdir();
+			new File(catalogPath + File.separator + "xml").mkdir();
+			new File(catalogPath + File.separator + "icons").mkdir();			
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

@@ -58,6 +58,9 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 			btnCatalog.setFocusable(false);
 			btnCatalog.setToolTipText(category);
 			boolean first = true;
+			if (furnitures.size() < 1) {
+				btnCatalog.setText(category);
+			}
 			for (CustomFurniture furniture : furnitures) {
 				if (first) {
 					btnCatalog.setIcon(furniture.getIcon());

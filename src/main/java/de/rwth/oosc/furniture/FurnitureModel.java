@@ -50,8 +50,15 @@ public class FurnitureModel {
 		model.put(category, l);
 	}
 	
+	private void createCatalogIfAbsent(String catalogue) {
+		if (get(catalogue) == null) {
+			model.put(catalogue, new HashSet<>());
+		}
+	}
+	
 	private boolean basicAddFurnitures(String category, Collection<CustomFurniture> furnitures) {
 		boolean changed = false;
+		createCatalogIfAbsent(category);
 		for (CustomFurniture f : furnitures) {
 			basicAddFurniture(category, f);
 			changed = true;
@@ -62,6 +69,7 @@ public class FurnitureModel {
 	
 	public void addFurniture(String category, CustomFurniture furniture) {
 		var oldValue = deepClone();
+		createCatalogIfAbsent(category);
 		basicAddFurniture(category, furniture);
 		pcs.firePropertyChange("model", oldValue, deepClone());
 		
@@ -80,9 +88,9 @@ public class FurnitureModel {
 		}
 	}
 	
-	public void removeFurniture(String category, CustomFurniture furniture) {
+	public void removeFurniture(String catalog, CustomFurniture furniture) {
 		System.out.println("in RemoveFurniture");
-		Set<CustomFurniture> l = model.get(category);
+		Set<CustomFurniture> l = model.get(catalog);
 		
 		if (l != null) {
 			var oldValue = deepClone();
@@ -90,11 +98,23 @@ public class FurnitureModel {
 			pcs.firePropertyChange("model", oldValue, deepClone());
 	
 			new Thread(()-> {
-				IOUtil.deleteFurniture(category, furniture.getName());
+				IOUtil.deleteFurniture(catalog, furniture.getName());
 			}).start();
 		}
 		
 
+	}
+	
+	public void removeFurnitureCatalog(String catalog) {
+		if(model.get(catalog) != null) {
+			var oldModel = deepClone();
+			model.remove(catalog);
+			pcs.firePropertyChange("model", oldModel, deepClone());
+			
+			new Thread(()->{
+				IOUtil.deleteFurnitureCatalog(catalog);
+			}).start();
+		}
 	}
 	
 	public boolean hasFurniture(String category, String name) {
@@ -114,6 +134,9 @@ public class FurnitureModel {
 	
 	public Set<CustomFurniture> get(String category) {
 		Set<CustomFurniture> copy = new HashSet<>();
+		if (model.get(category) == null) {
+			return null;
+		}
 		copy.addAll(model.get(category));
 		return copy;
 	}
@@ -142,10 +165,44 @@ public class FurnitureModel {
 				consumer.accept(catalogue, furnitures);
 			}
 		});
-		consumer.accept("other", model.get("other"));
+		if (model.get("other") != null) {
+			consumer.accept("other", model.get("other"));
+		}	
 	}
 	
 	public Set<String> getCatalogues() {
 		return model.keySet();
+	}
+
+	public void addCatalog(String catalog) {
+		if(model.get(catalog)==null) {
+			var oldModel = deepClone();
+			model.put(catalog, new HashSet<>());
+			pcs.firePropertyChange("model", oldModel, deepClone());
+			
+			new Thread(()->{
+				IOUtil.createCatalog(catalog);
+			}).start();
+			
+		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for (String c : getCatalogues()) {
+			if (!first) {
+				sb.append(", ");
+			}
+			first = false;
+			sb.append(c+": {");
+			if (get(c) != null) {
+				sb.append(get(c));
+			}
+			sb.append("}");
+		}
+		
+		return sb.toString();
 	}
 }

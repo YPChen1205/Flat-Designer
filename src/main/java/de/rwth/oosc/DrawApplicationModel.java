@@ -14,8 +14,6 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
@@ -61,7 +59,9 @@ import de.rwth.oosc.figures.structure.WindowFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
 import de.rwth.oosc.furniture.action.AddFurnitureAction;
+import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
+import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
@@ -135,14 +135,14 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		tb = new JToolBar();
 		Collection<Action> selectionActions = ButtonFactory.createSelectionActions(editor);
 		addSelectionToolTo(tb, editor, ButtonFactory.createDrawingActions(editor), selectionActions);
-		
+
 		addDefaultCreationButtonsTo(tb, editor);
 		tb.setName(labels.getString("window.drawToolBar.title"));
 		list.add(tb);
 		// ------------------------------------------------------------
 		ButtonGroup buttonGroup = (ButtonGroup) tb.getClientProperty("toolButtonGroup");
 		ToolListener listener = (ToolListener) tb.getClientProperty("toolHandler");
-		
+
 		tb = new JFurnitureToolBar(editor, TOOLBAR_BUTTONGROUP_PROPKEY, TOOLBAR_HANDLER_PROPKEY);
 		tb.putClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY, buttonGroup);
 		tb.putClientProperty(TOOLBAR_HANDLER_PROPKEY, listener);
@@ -150,7 +150,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		tb.setName(customLabels.getString("window.flatElementsToolBar.title"));
 		list.add(tb);
 		customSelectionAction(editor, selectionActions);
-		
+
 		tb = new JToolBar();
 		ButtonFactory.addAttributesButtonsTo(tb, editor);
 		tb.setName(labels.getString("window.attributesToolBar.title"));
@@ -171,14 +171,19 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DoorFigure()), "edit.createDoor", customLabels);
 
 		tb.addSeparator();
+		tb.addMouseListener(new CreateFurnitureCatalogAction(furnitureModel, null, null));
 
 		try {
 			ButtonGroup group = (ButtonGroup) tb.getClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY);
 			furnitureModel.forEachCategory((category, furnitures) -> {
 				JPopupButton btnCatalog = new JPopupButton();
+				btnCatalog.addMouseListener(new RemoveFurnitureCatalogAction(furnitureModel, category, null));
 				btnCatalog.setFocusable(false);
 				btnCatalog.setToolTipText(category);
 				boolean first = true;
+				if (furnitures.size() < 1) {
+					btnCatalog.setText(category);
+				}
 				for (CustomFurniture furniture : furnitures) {
 					if (first) {
 						btnCatalog.setIcon(furniture.getIcon());
@@ -191,13 +196,9 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 					button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 					button.setFocusable(false);
 					furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));
-					//--------------popup context menu-------------
-//					JPopupMenu menuRightClick = new JPopupMenu();
-//					JMenuItem itemRm = new JMenuItem("Remove");
-//					menuRightClick.add(itemRm);
-//					button.setComponentPopupMenu(menuRightClick);
+					// --------------popup context menu-------------
 					button.addMouseListener(new RemoveFurnitureAction(furnitureModel, category, furniture));
-				
+
 					group.add(button);
 					btnCatalog.add(button);
 				}
@@ -208,6 +209,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 			e.printStackTrace();
 		}
 		furnitureModel.addPropertyChangeListener((JFurnitureToolBar) tb);
+
 	}
 
 	public void customSelectionAction(DrawingEditor editor, Collection<Action> selectionActions) {
@@ -249,10 +251,10 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DiamondFigure()), "edit.createDiamond", labels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new TriangleFigure()), "edit.createTriangle", labels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new LineFigure()), "edit.createLine", labels);
-		
-        //------------------ArcTool---------------------------		
+
+		// ------------------ArcTool---------------------------
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new ArcFigure()), "edit.createArc", customLabels);
-		
+
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new LineFigure()), "edit.createArrow", labels);
 		ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure()), "edit.createScribble", labels);
 		ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure(true)), "edit.createPolygon", labels);
