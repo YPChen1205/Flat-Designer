@@ -13,12 +13,10 @@ import de.rwth.oosc.furniture.FurnitureModel;
 
 public abstract class AbstractItemAction extends MouseAdapter{
 	
-	protected FurnitureModel fmodel; 
 	protected CustomFurniture cfurniture;
 	protected String catalog;
 	
-	public AbstractItemAction(FurnitureModel fmodel, String catalog, CustomFurniture cfurniture) {
-		this.fmodel = fmodel;
+	public AbstractItemAction(String catalog, CustomFurniture cfurniture) {
 		this.catalog = catalog;
 		this.cfurniture = cfurniture;
 	}

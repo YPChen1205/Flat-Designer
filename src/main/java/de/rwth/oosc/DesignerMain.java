@@ -37,9 +37,9 @@ public class DesignerMain {
         }
 
         DrawApplicationModel model = new DrawApplicationModel();
-        model.setName("JHotDraw Draw");
+        model.setName("Flat Designer");
         model.setVersion(DesignerMain.class.getPackage().getImplementationVersion());
-        model.setCopyright("Copyright 2006-2009 (c) by the authors of JHotDraw and all its contributors.\n" +
+        model.setCopyright("Copyright 2022 (c) by Yaping Chen and all its contributors.\n" +
                 "This software is licensed under LGPL or Creative Commons 3.0 Attribution.");
         model.setViewFactory(DrawView::new);
         app.setModel(model);

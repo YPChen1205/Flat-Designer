@@ -60,6 +60,8 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 			boolean first = true;
 			if (furnitures.size() < 1) {
 				btnCatalog.setText(category);
+			} else {
+				btnCatalog.setText("");
 			}
 			for (CustomFurniture furniture : furnitures) {
 				if (first) {
@@ -73,12 +75,14 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 				button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 				button.setFocusable(false);
 				furnitureCreationTool.addToolListener((ToolListener) getClientProperty(handlerKey));
-				button.addMouseListener(new RemoveFurnitureAction(furnitureModel, category, furniture));
+				button.addMouseListener(new RemoveFurnitureAction(category, furniture));
 				group.add(button);
 				btnCatalog.add(button);
 			}
 			add(btnCatalog);
 		});
+		invalidate();
+		repaint();
 	}
 
 }

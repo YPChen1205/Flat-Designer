@@ -9,8 +9,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -24,7 +26,6 @@ import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 
 import de.rwth.oosc.DrawFigureFactory;
 import de.rwth.oosc.furniture.CustomFurniture;
-import de.rwth.oosc.furniture.FurnitureModel;
 
 public class IOUtil {
 
@@ -32,20 +33,21 @@ public class IOUtil {
 
 	private static DOMStorableInputOutputFormat inoutFormat = new DOMStorableInputOutputFormat(new DrawFigureFactory());
 
-	public static FurnitureModel loadDefaultModel() {
-		FurnitureModel fmodel = FurnitureModel.getFmodel();
+	public static Map<String, Set<CustomFurniture>> loadDefaultModel() {
+		
+		Map<String, Set<CustomFurniture>> fMap = new HashMap<String, Set<CustomFurniture>>();
 
 		try {
-			fmodel = load(new File(IOUtil.class.getResource(CUSTOM_FURNITURE_PATH).toURI()).getAbsolutePath());
+			fMap = load(new File(IOUtil.class.getResource(CUSTOM_FURNITURE_PATH).toURI()).getAbsolutePath());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 
-		return fmodel;
+		return fMap;
 	}
 
-	public static FurnitureModel load(String path) throws URISyntaxException {
-		FurnitureModel model = FurnitureModel.getFmodel();
+	public static Map<String, Set<CustomFurniture>> load(String path) throws URISyntaxException {
+		Map<String, Set<CustomFurniture>> fMap = new HashMap<String, Set<CustomFurniture>>();
 		File dirStructure = new File(path);
 
 		if (!dirStructure.isDirectory()) {
@@ -56,7 +58,7 @@ public class IOUtil {
 			if (catDir.isDirectory()) {
 				String category = catDir.getName();
 				try {
-					model.addFurnitures(category,
+					fMap.put(category,
 							loadFurnituresByCatalogPath(dirStructure.getAbsolutePath() + File.separator + category));
 					;
 				} catch (Exception e) {
@@ -65,17 +67,17 @@ public class IOUtil {
 			}
 		}
 
-		return model;
+		return fMap;
 	}
 
 //	private static String getXMLPathByCatalog(String catalog) throws URISyntaxException {
 //		return new File(CustomFurniture.class.getResource(CUSTOM_FURNITURE_PATH + catalog + "/xml/").toURI()).getAbsolutePath();
 //	}
 
-	public static List<CustomFurniture> loadFurnituresByCatalogPath(String catalogPath)
+	public static Set<CustomFurniture> loadFurnituresByCatalogPath(String catalogPath)
 			throws URISyntaxException, IOException {
 		File xmlDir = new File(getXMLDirPath(catalogPath));
-		List<CustomFurniture> furnitures = new ArrayList<>();
+		Set<CustomFurniture> furnitures = new HashSet<>();
 
 		for (File xmlFile : xmlDir.listFiles()) {
 			if (xmlFile.isFile()) {
@@ -89,11 +91,11 @@ public class IOUtil {
 	}
 
 	private static String getIconDirPath(String catalogPath) {
-		return catalogPath + "/icons";
+		return catalogPath + File.separator + "icons";
 	}
 
 	private static String getXMLDirPath(String catalogPath) {
-		return catalogPath + "/xml";
+		return catalogPath + File.separator + "xml";
 	}
 
 	public static String getXMLPath(String catalogPath, String name) {
@@ -111,7 +113,7 @@ public class IOUtil {
 
 		// load XML
 		drawing.getInputFormats().get(0).read(furnitureFile.toURI(), drawing);
-		GroupFigure f = (GroupFigure) drawing.getChild(0);
+		GroupFigure f = (GroupFigure) drawing.getChild(0).clone();
 
 		// load image for icon
 		BufferedImage image = ImageIO.read(iconFile);
@@ -161,9 +163,11 @@ public class IOUtil {
 		Drawing drawing = new DefaultDrawing();
 		drawing.add(furniture.getFigure());
 		drawing.addOutputFormat(inoutFormat);
+		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(getXMLPath(categoryPath, furniture.getName()))));
 		drawing.getOutputFormats().get(0).write(
-				new BufferedOutputStream(new FileOutputStream(new File(getXMLPath(categoryPath, furniture.getName())))),
+				outputStream,
 				drawing);
+		outputStream.close();
 		saveAsIcon(categoryPath, furniture, CustomFurniture.ICON_DIMENSION);
 	}
 
@@ -173,10 +177,8 @@ public class IOUtil {
 			String xmlPath = getXMLPath(defaultPath + File.separator + catalog, furnitureName);
 			String iconPath = getIconPath(defaultPath + File.separator + catalog, furnitureName);
 			File xmlFile = new File(xmlPath);
-			System.out.println(xmlFile);
 			xmlFile.delete();
 			File iconFile = new File(iconPath);
-			System.out.println(iconPath);
 			iconFile.delete();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

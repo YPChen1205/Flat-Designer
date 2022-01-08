@@ -13,7 +13,7 @@ import de.rwth.oosc.furniture.FurnitureModel;
 public class RemoveFurnitureCatalogAction extends AbstractItemAction {
 
 	public RemoveFurnitureCatalogAction(FurnitureModel fmodel, String catalog, CustomFurniture cfurniture) {
-		super(fmodel, catalog, cfurniture);
+		super(catalog, cfurniture);
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class RemoveFurnitureCatalogAction extends AbstractItemAction {
 		Map<JMenuItem, Consumer<MouseEvent>> map = new HashMap<>();
 		JMenuItem itemRemove = new JMenuItem("Remove " + catalog);
 		map.put(itemRemove, e->{
-			fmodel.removeFurnitureCatalog(catalog);
+			FurnitureModel.getInstance().removeFurnitureCatalog(catalog);
 		});
 		
 		

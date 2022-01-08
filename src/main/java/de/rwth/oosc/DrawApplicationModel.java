@@ -75,7 +75,7 @@ import de.rwth.oosc.tool.ToolButtonListener;
 public class DrawApplicationModel extends DefaultApplicationModel {
 	private static final long serialVersionUID = 1L;
 
-	private FurnitureModel furnitureModel = FurnitureModel.getFmodel();
+	private FurnitureModel furnitureModel;
 
 	public static final String CUSTOM_LABELS = "de.rwth.oosc.flatdesigner.Labels";
 
@@ -110,7 +110,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 	}
 
 	public void initFurnitures() {
-		furnitureModel = FurnitureModel.loadInstance();
+		furnitureModel = FurnitureModel.getInstance();
 	}
 
 	/**
@@ -171,6 +171,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DoorFigure()), "edit.createDoor", customLabels);
 
 		tb.addSeparator();
+		furnitureModel.addPropertyChangeListener((JFurnitureToolBar) tb);
 		tb.addMouseListener(new CreateFurnitureCatalogAction(furnitureModel, null, null));
 
 		try {
@@ -197,7 +198,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 					button.setFocusable(false);
 					furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));
 					// --------------popup context menu-------------
-					button.addMouseListener(new RemoveFurnitureAction(furnitureModel, category, furniture));
+					button.addMouseListener(new RemoveFurnitureAction(category, furniture));
 
 					group.add(button);
 					btnCatalog.add(button);
@@ -208,14 +209,14 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		furnitureModel.addPropertyChangeListener((JFurnitureToolBar) tb);
+		
 
 	}
 
 	public void customSelectionAction(DrawingEditor editor, Collection<Action> selectionActions) {
 		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
 
-		AddFurnitureAction fsAction = new AddFurnitureAction(editor, furnitureModel);
+		AddFurnitureAction fsAction = new AddFurnitureAction(editor);
 		customLabels.configureAction(fsAction, AddFurnitureAction.ID);
 		selectionActions.add(fsAction);
 

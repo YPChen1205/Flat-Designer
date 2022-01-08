@@ -18,12 +18,8 @@ public class AddFurnitureAction extends AbstractSelectedAction {
 
 	public static final String ID = "FurnitureSaveAction.ID";
 
-	private FurnitureModel furnitureModel;
-
-	public AddFurnitureAction(DrawingEditor editor, FurnitureModel furnitureModel) {
+	public AddFurnitureAction(DrawingEditor editor) {
 		super(editor);
-
-		this.furnitureModel = furnitureModel;
 	}
 
 	@Override
@@ -38,14 +34,14 @@ public class AddFurnitureAction extends AbstractSelectedAction {
 		}
 		
 
-		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent(), furnitureModel.getCatalogues().toArray(new String[0]));
-
+		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent(), FurnitureModel.getInstance().getCatalogues().toArray(new String[0]));
+		
 		if (dialog.isApproved()) {
 			String name = dialog.getTypedName();
 			String catalogue = dialog.getSelectedCatalogue();
 			try {
 				CustomFurniture furniture = new CustomFurniture(name, gf);
-				furnitureModel.addFurniture(catalogue, furniture);
+				FurnitureModel.getInstance().addFurniture(catalogue, furniture);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

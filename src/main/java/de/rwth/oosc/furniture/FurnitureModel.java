@@ -17,15 +17,16 @@ public class FurnitureModel {
 
 	private Map<String, Set<CustomFurniture>> model = new HashMap<>();
 	
-	private static FurnitureModel fmodel = new FurnitureModel();
+	private static FurnitureModel instance;
+	
+	static {
+		if (instance == null) {
+			instance = new FurnitureModel();
+			instance.model = IOUtil.loadDefaultModel();
+		}
+	}
 	
 	private FurnitureModel () {};
-	
-
-	public static FurnitureModel getFmodel() {
-		return fmodel;
-	}
-
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.addPropertyChangeListener(listener);
@@ -75,7 +76,7 @@ public class FurnitureModel {
 		
 		new Thread(() -> {
 			IOUtil.saveFurnitureDefault(category, furniture);
-		}).start();
+		}, "IOAddThread").start();
 	}
 	
 	
@@ -89,17 +90,16 @@ public class FurnitureModel {
 	}
 	
 	public void removeFurniture(String catalog, CustomFurniture furniture) {
-		System.out.println("in RemoveFurniture");
 		Set<CustomFurniture> l = model.get(catalog);
 		
-		if (l != null) {
+		if (l != null && l.contains(furniture)) {
 			var oldValue = deepClone();
 			l.remove(furniture);
 			pcs.firePropertyChange("model", oldValue, deepClone());
 	
 			new Thread(()-> {
 				IOUtil.deleteFurniture(catalog, furniture.getName());
-			}).start();
+			}, "IORemoveFurnitureThread").start();
 		}
 		
 
@@ -113,7 +113,7 @@ public class FurnitureModel {
 			
 			new Thread(()->{
 				IOUtil.deleteFurnitureCatalog(catalog);
-			}).start();
+			}, "IORemoveCatalogThread").start();
 		}
 	}
 	
@@ -143,10 +143,9 @@ public class FurnitureModel {
 	
 	
 	
-	public static FurnitureModel loadInstance() {
-		return IOUtil.loadDefaultModel();
+	public static FurnitureModel getInstance() {
+		return instance;
 	}
-	
 	
 	private FurnitureModel deepClone() {
 		FurnitureModel copy = new FurnitureModel();
@@ -155,7 +154,9 @@ public class FurnitureModel {
 			listCopy.addAll(list);
 			copy.basicAddFurnitures(category, list);
 		});
-		
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners()) {
+			copy.addPropertyChangeListener(listener);
+		}
 		return copy;
 	}
 	
@@ -182,7 +183,7 @@ public class FurnitureModel {
 			
 			new Thread(()->{
 				IOUtil.createCatalog(catalog);
-			}).start();
+			}, "IOAddCatalogThread").start();
 			
 		}
 	}

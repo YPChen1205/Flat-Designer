@@ -14,7 +14,7 @@ import de.rwth.oosc.furniture.FurnitureModel;
 public class CreateFurnitureCatalogAction extends AbstractItemAction {
 
 	public CreateFurnitureCatalogAction(FurnitureModel fmodel, String catalog, CustomFurniture cfurniture) {
-		super(fmodel, catalog, cfurniture);
+		super(catalog, cfurniture);
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class CreateFurnitureCatalogAction extends AbstractItemAction {
 		JMenuItem itemCreate = new JMenuItem("Create new catalog");
 		map.put(itemCreate, e->{
 			String catalog = JOptionPane.showInputDialog("Furniture Catalog name:");
-			fmodel.addCatalog(catalog);
+			FurnitureModel.getInstance().addCatalog(catalog);
 		});
 		
 		
