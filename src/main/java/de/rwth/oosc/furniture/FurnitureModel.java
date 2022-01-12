@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import de.rwth.oosc.util.IOUtil;
+import de.rwth.oosc.io.IOUtil;
 
 public class FurnitureModel {
 

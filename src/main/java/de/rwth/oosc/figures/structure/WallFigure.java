@@ -3,7 +3,9 @@ package de.rwth.oosc.figures.structure;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineFigure;
 
-public class WallFigure extends LineFigure {
+import de.rwth.oosc.figures.svg.SVGPathFigure;
+
+public class WallFigure extends SVGPathFigure {
 	public static final double WALL_THICKNESS = 10.0f;
 	public WallFigure() {
 		super();

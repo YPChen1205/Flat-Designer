@@ -7,26 +7,38 @@
  */
 package de.rwth.oosc;
 
+import static org.jhotdraw.draw.AttributeKeys.PATH_CLOSED;
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import org.jhotdraw.annotation.Nullable;
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.ApplicationModel;
 import org.jhotdraw.app.DefaultApplicationModel;
 import org.jhotdraw.app.View;
 import org.jhotdraw.app.action.ActionUtil;
+import org.jhotdraw.draw.AbstractAttributedCompositeFigure;
+import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.DiamondFigure;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.ImageFigure;
 import org.jhotdraw.draw.LineFigure;
 import org.jhotdraw.draw.RectangleFigure;
@@ -35,9 +47,13 @@ import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.TriangleFigure;
 import org.jhotdraw.draw.action.ButtonFactory;
+import org.jhotdraw.draw.action.GroupAction;
+import org.jhotdraw.draw.action.UngroupAction;
+import org.jhotdraw.draw.decoration.ArrowTip;
 import org.jhotdraw.draw.event.ToolListener;
 import org.jhotdraw.draw.tool.BezierTool;
 import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
 import org.jhotdraw.draw.tool.ImageTool;
 import org.jhotdraw.draw.tool.TextAreaCreationTool;
 import org.jhotdraw.draw.tool.TextCreationTool;
@@ -53,15 +69,28 @@ import de.rwth.oosc.actions.HorizontalFlipAction;
 import de.rwth.oosc.actions.VerticalFlipAction;
 import de.rwth.oosc.components.JFurnitureToolBar;
 import de.rwth.oosc.figures.ArcFigure;
+import de.rwth.oosc.figures.FigureProxy;
+import de.rwth.oosc.figures.FigureRotationProxy;
 import de.rwth.oosc.figures.structure.DoorFigure;
 import de.rwth.oosc.figures.structure.WallFigure;
 import de.rwth.oosc.figures.structure.WindowFigure;
+import de.rwth.oosc.figures.svg.SVGBezierFigure;
+import de.rwth.oosc.figures.svg.SVGEllipseFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
+import de.rwth.oosc.figures.svg.SVGImageFigure;
+import de.rwth.oosc.figures.svg.SVGPathFigure;
+import de.rwth.oosc.figures.svg.SVGRectFigure;
+import de.rwth.oosc.figures.svg.SVGTextAreaFigure;
+import de.rwth.oosc.figures.svg.SVGTextFigure;
+import de.rwth.oosc.figures.svg.SVGTriangleFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
 import de.rwth.oosc.furniture.action.AddFurnitureAction;
 import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
+import de.rwth.oosc.tool.PathTool;
+import de.rwth.oosc.tool.RotationDelegationSelectionTool;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
@@ -111,6 +140,27 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 
 	public void initFurnitures() {
 		furnitureModel = FurnitureModel.getInstance();
+	}
+	
+	@Override
+	public ActionMap createActionMap(Application a, @Nullable View view) {
+		DrawView v = (DrawView) view;
+		
+		DrawingEditor editor;
+		if (v == null) {
+			editor = getSharedEditor();
+		} else {
+			if (a.isSharingToolsAmongViews()) {
+	            v.setEditor(editor=getSharedEditor());
+	        } else {
+	            v.setEditor(editor=new DefaultDrawingEditor());
+	        }
+		}
+		
+		ActionMap actionMap = super.createActionMap(a, v);
+		actionMap.put(GroupAction.ID, new GroupAction(editor, new SVGGroupFigure()));
+		actionMap.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
+		return actionMap;
 	}
 
 	/**
@@ -178,7 +228,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 			ButtonGroup group = (ButtonGroup) tb.getClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY);
 			furnitureModel.forEachCategory((category, furnitures) -> {
 				JPopupButton btnCatalog = new JPopupButton();
-				btnCatalog.addMouseListener(new RemoveFurnitureCatalogAction(furnitureModel, category, null));
+				btnCatalog.addMouseListener(new RemoveFurnitureCatalogAction(category, null));
 				btnCatalog.setFocusable(false);
 				btnCatalog.setToolTipText(category);
 				boolean first = true;
@@ -236,8 +286,9 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 
 	private void addSelectionToolTo(JToolBar tb, final DrawingEditor editor, Collection<Action> drawingActions,
 			Collection<Action> selectionActions) {
-		ButtonFactory.addSelectionToolTo(tb, editor, drawingActions, selectionActions);
-
+		DelegationSelectionTool selectionTool = new DelegationSelectionTool(drawingActions, selectionActions);
+		ButtonFactory.addSelectionToolTo(tb, editor, selectionTool);
+		
 		tb.addSeparator();
 	}
 
@@ -245,24 +296,33 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
 		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
 
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new RectangleFigure()), "edit.createRectangle", labels);
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new RoundRectangleFigure()), "edit.createRoundRectangle",
-				labels);
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new EllipseFigure()), "edit.createEllipse", labels);
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DiamondFigure()), "edit.createDiamond", labels);
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new TriangleFigure()), "edit.createTriangle", labels);
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new LineFigure()), "edit.createLine", labels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGRectFigure()), "edit.createRectangle", labels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGEllipseFigure()), "edit.createEllipse", labels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGTriangleFigure()), "edit.createTriangle", labels);
+		Map<AttributeKey<?>, Object> attributes = new HashMap<AttributeKey<?>, Object>();
+        attributes.put(AttributeKeys.FILL_COLOR, null);
+        attributes.put(PATH_CLOSED, false);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGPathFigure()), "edit.createLine", labels);
 
 		// ------------------ArcTool---------------------------
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new ArcFigure()), "edit.createArc", customLabels);
-
-		ButtonFactory.addToolTo(tb, editor, new CreationTool(new LineFigure()), "edit.createArrow", labels);
-		ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure()), "edit.createScribble", labels);
-		ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure(true)), "edit.createPolygon", labels);
-		ButtonFactory.addToolTo(tb, editor, new TextCreationTool(new TextFigure()), "edit.createText", labels);
-		ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea",
+//		ButtonFactory.addToolTo(tb, editor, new CreationTool(new FigureRotationProxy(new ArcFigure())), "edit.createArc", customLabels);
+		CreationTool ct;
+		AbstractAttributedCompositeFigure af;
+		
+		ButtonFactory.addToolTo(tb, editor, ct = new CreationTool(new SVGPathFigure()), "edit.createArrow", labels);
+		af = (AbstractAttributedCompositeFigure) ct.getPrototype();
+		af.set(AttributeKeys.END_DECORATION, new ArrowTip(0.35, 12, 11.3));
+		
+		ButtonFactory.addToolTo(tb, editor, new PathTool(new SVGPathFigure(), new SVGBezierFigure(), attributes), "edit.createScribble", labels);
+		ButtonFactory.addToolTo(tb, editor, new PathTool(new SVGPathFigure(), new SVGBezierFigure(true)), "edit.createPolygon", labels);
+		
+		attributes = new HashMap<AttributeKey<?>, Object>();
+        attributes.put(AttributeKeys.FILL_COLOR, Color.black);
+        attributes.put(AttributeKeys.STROKE_COLOR, null);
+		ButtonFactory.addToolTo(tb, editor, new TextCreationTool(new SVGTextFigure(), attributes), "edit.createText", labels);
+		ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new SVGTextAreaFigure(), attributes), "edit.createTextArea",
 				labels);
-		ButtonFactory.addToolTo(tb, editor, new ImageTool(new ImageFigure()), "edit.createImage", labels);
+		ButtonFactory.addToolTo(tb, editor, new ImageTool(new SVGImageFigure()), "edit.createImage", labels);
 	}
 
 	@Override

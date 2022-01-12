@@ -12,7 +12,7 @@ import de.rwth.oosc.furniture.FurnitureModel;
 
 public class RemoveFurnitureCatalogAction extends AbstractItemAction {
 
-	public RemoveFurnitureCatalogAction(FurnitureModel fmodel, String catalog, CustomFurniture cfurniture) {
+	public RemoveFurnitureCatalogAction(String catalog, CustomFurniture cfurniture) {
 		super(catalog, cfurniture);
 	}
 

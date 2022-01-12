@@ -21,6 +21,8 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.xml.DefaultDOMFactory;
 
 import de.rwth.oosc.figures.ArcFigure;
+import de.rwth.oosc.figures.FigureProxy;
+import de.rwth.oosc.figures.FigureRotationProxy;
 /**
  * DrawFigureFactory.
  *
@@ -45,6 +47,8 @@ public class DrawFigureFactory extends DefaultDOMFactory {
         { TextAreaFigure.class, "ta" },
         { ImageFigure.class, "image" },
         { GroupFigure.class, "g" },
+        { FigureProxy.class, "fp" },
+        { FigureRotationProxy.class, "frp"},
         
         { ArrowTip.class, "arrowTip" },
         { ChopRectangleConnector.class, "rConnector" },
