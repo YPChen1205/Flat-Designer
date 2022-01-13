@@ -1,8 +1,6 @@
 package de.rwth.oosc.dialog;
 
 import java.awt.Component;
-import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -25,18 +23,22 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 	private String typedName;
 	private String selectedCatalogue;
 	
+	private String placeholder;
+	
 	private JTextField txtName;
 	private JComboBox<String> cboCatalog;
 	
 	private JOptionPane optionPane;
 
 	public FurnitureSaveDialog(Component parent, String[] catalogues) {
-		super(null, "Save furniture...", ModalityType.APPLICATION_MODAL);
+		super(null, "Save furniture...", ModalityType.APPLICATION_MODAL);		
+		
+		placeholder = "Please choose a catalogue...";
 		
 		Vector<String> cboCatalogues = new Vector<>();
 		cboCatalogues.addAll(Arrays.asList(catalogues));
 		
-		cboCatalog = new JPlaceholderComboBox<>("Please choose a catalogue...", cboCatalogues);
+		cboCatalog = new JPlaceholderComboBox<>(placeholder, cboCatalogues);
 		txtName = new JPlaceholderTextField("Type in a furniture name...");
 		txtName.setFocusable(false);
 		cboCatalog.requestFocus();
@@ -45,8 +47,6 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
@@ -55,8 +55,6 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
@@ -116,28 +114,31 @@ public class FurnitureSaveDialog extends JDialog implements PropertyChangeListen
 			return;
 		}
 		
-		System.out.println(optionPane.getValue());
 		int optionPaneValue = (int)optionPane.getValue();
-		
 		if (isVisible() && evt.getSource() == optionPane &&
 				JOptionPane.VALUE_PROPERTY.equals(prop) && 
 				optionPaneValue == JOptionPane.OK_OPTION) {
 			String name = txtName.getText();
 			int selectedIndex = cboCatalog.getSelectedIndex();
 			
-			if (!name.isBlank() && selectedIndex > 0) {
+			if (!name.isBlank() && selectedIndex > -1 && !cboCatalog.getSelectedItem().equals(placeholder)) {
 				setTypedName(name);
 				setSelectedCatalogue((String) cboCatalog.getSelectedItem());
 				
-				setVisible(false);
+				hideAndClean();
 			} else {
-				
+				JOptionPane.showMessageDialog(this, "Please input a name AND choose the catalog for your furniture.", "Save error", JOptionPane.ERROR_MESSAGE);
+				optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 			}
 		} else if (isVisible() && evt.getSource() == optionPane &&
 				JOptionPane.VALUE_PROPERTY.equals(prop) && 
 				optionPaneValue == JOptionPane.CANCEL_OPTION) {
-			setVisible(false);
-			dispose();
+			hideAndClean();
 		}
+	}
+	
+	private void hideAndClean() {
+		setVisible(false);
+		dispose();
 	}
 }

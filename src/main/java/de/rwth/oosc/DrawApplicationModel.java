@@ -7,45 +7,77 @@
  */
 package de.rwth.oosc;
 
-import org.jhotdraw.draw.tool.CreationTool;
-import org.jhotdraw.draw.tool.BezierTool;
-import org.jhotdraw.draw.tool.TextCreationTool;
-import org.jhotdraw.draw.tool.Tool;
-import org.jhotdraw.draw.tool.TextAreaCreationTool;
-import org.jhotdraw.draw.tool.ImageTool;
-import org.jhotdraw.draw.liner.ElbowLiner;
-import org.jhotdraw.draw.liner.CurvedLiner;
-import org.jhotdraw.draw.tool.ConnectionTool;
-import org.jhotdraw.draw.decoration.ArrowTip;
-import org.jhotdraw.draw.event.ToolListener;
-import org.jhotdraw.gui.URIChooser;
-import org.jhotdraw.util.*;
-
-import de.rwth.oosc.furniture.CustomFurniture;
-import de.rwth.oosc.furniture.action.FurnitureSaveAction;
-import de.rwth.oosc.structure.DoorFigure;
-import de.rwth.oosc.structure.WallFigure;
-import de.rwth.oosc.structure.WindowFigure;
+import static org.jhotdraw.draw.AttributeKeys.PATH_CLOSED;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.*;
-import javax.swing.*;
-import org.jhotdraw.app.*;
-import org.jhotdraw.draw.*;
-import org.jhotdraw.draw.action.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.ButtonGroup;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+
+import org.jhotdraw.annotation.Nullable;
+import org.jhotdraw.app.Application;
+import org.jhotdraw.app.ApplicationModel;
+import org.jhotdraw.app.DefaultApplicationModel;
+import org.jhotdraw.app.View;
+import org.jhotdraw.app.action.ActionUtil;
+import org.jhotdraw.app.action.edit.DuplicateAction;
+import org.jhotdraw.draw.AbstractAttributedCompositeFigure;
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.DefaultDrawingEditor;
+import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.action.BringToFrontAction;
+import org.jhotdraw.draw.action.ButtonFactory;
+import org.jhotdraw.draw.action.GroupAction;
+import org.jhotdraw.draw.action.SendToBackAction;
+import org.jhotdraw.draw.action.UngroupAction;
+import org.jhotdraw.draw.decoration.ArrowTip;
+import org.jhotdraw.draw.event.ToolListener;
+import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
+import org.jhotdraw.draw.tool.ImageTool;
+import org.jhotdraw.draw.tool.TextAreaCreationTool;
+import org.jhotdraw.draw.tool.TextCreationTool;
+import org.jhotdraw.draw.tool.Tool;
 import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.JPopupButton;
+import org.jhotdraw.gui.URIChooser;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
-import static org.jhotdraw.draw.AttributeKeys.*;
+import org.jhotdraw.util.ResourceBundleUtil;
+
+import de.rwth.oosc.actions.AbstractTransformAction;
+import de.rwth.oosc.actions.HorizontalFlipAction;
+import de.rwth.oosc.actions.VerticalFlipAction;
+import de.rwth.oosc.components.JFurnitureToolBar;
+import de.rwth.oosc.figures.structure.DoorFigure;
+import de.rwth.oosc.figures.structure.WallFigure;
+import de.rwth.oosc.figures.structure.WindowFigure;
+import de.rwth.oosc.figures.svg.SVGBezierFigure;
+import de.rwth.oosc.figures.svg.SVGEllipseFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
+import de.rwth.oosc.figures.svg.SVGImageFigure;
+import de.rwth.oosc.figures.svg.SVGPathFigure;
+import de.rwth.oosc.figures.svg.SVGRectFigure;
+import de.rwth.oosc.figures.svg.SVGTextAreaFigure;
+import de.rwth.oosc.figures.svg.SVGTextFigure;
+import de.rwth.oosc.figures.svg.SVGTriangleFigure;
+import de.rwth.oosc.furniture.CustomFurniture;
+import de.rwth.oosc.furniture.FurnitureModel;
+import de.rwth.oosc.furniture.action.AddFurnitureAction;
+import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
+import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
+import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
+import de.rwth.oosc.tool.PathTool;
+import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
  * Provides factory methods for creating views, menu bars and toolbars.
@@ -56,237 +88,257 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * @version $Id: DrawApplicationModel.java 788 2014-03-22 07:56:28Z rawcoder $
  */
 public class DrawApplicationModel extends DefaultApplicationModel {
-    private static final long serialVersionUID = 1L;
-    
-    private List<String> catalogues = new ArrayList<>();
-    private List<CustomFurniture> furnitures = new ArrayList<>();
-    
-    public static final String CUSTOM_LABELS = "de.rwth.oosc.flatdesigner.Labels";
-    
-    /**
-     * Toolbar properties.
-     */
-    public static final String TOOLBAR_BUTTONGROUP_PROPKEY = "toolButtonGroup";
-    public static final String TOOLBAR_HANDLER_PROPKEY = "toolHandler";
-    
-    private static class ToolButtonListener implements ItemListener {
+	private static final long serialVersionUID = 1L;
 
-        private Tool tool;
-        private DrawingEditor editor;
-        private JPopupButton parent;
+	private FurnitureModel furnitureModel;
 
-        public ToolButtonListener(Tool t, DrawingEditor editor, JPopupButton parent) {
-            this.tool = t;
-            this.editor = editor;
-            this.parent = parent;
-        }
+	public static final String CUSTOM_LABELS = "de.rwth.oosc.flatdesigner.Labels";
 
-        @Override
-        public void itemStateChanged(ItemEvent evt) {
-            if (evt.getStateChange() == ItemEvent.SELECTED) {
-            	parent.getPopupMenu().setVisible(false);
-            	parent.setIcon(((JToggleButton)evt.getItem()).getIcon());
-                editor.setTool(tool);
-            }
-        }
-    }
+	/**
+	 * Toolbar properties.
+	 */
+	public static final String TOOLBAR_BUTTONGROUP_PROPKEY = "toolButtonGroup";
+	public static final String TOOLBAR_HANDLER_PROPKEY = "toolHandler";
 
-    /**
-     * This editor is shared by all views.
-     */
-    private DefaultDrawingEditor sharedEditor;
+	/**
+	 * This editor is shared by all views.
+	 */
+	private DefaultDrawingEditor sharedEditor;
 
-    /** Creates a new instance. */
-    public DrawApplicationModel() {
-    	initFurnitures();
-    }
+	/** Creates a new instance. */
+	public DrawApplicationModel() {
+		initFurnitures();
+	}
 
-    public DefaultDrawingEditor getSharedEditor() {
-        if (sharedEditor == null) {
-            sharedEditor = new DefaultDrawingEditor();
-        }
-        return sharedEditor;
-    }
-
-    @Override
-    public void initView(Application a,View p) {
-        if (a.isSharingToolsAmongViews()) {
-            ((DrawView) p).setEditor(getSharedEditor());
-        }
-    }
-    
-    public void initFurnitures() {
-    	try {
-			File path = new File(DrawApplicationModel.class.getResource(CustomFurniture.CUSTOM_FURNITURE_PATH).toURI());
-			for (File f : path.listFiles()) {
-				if(f.isDirectory()) {
-					String catalog = f.getName(); 
-					List<CustomFurniture> furnitures = CustomFurniture.loadFurnituresByCatalog(catalog);
-					catalogues.add(catalog);
-					this.furnitures.addAll(furnitures);
-				}
-			}
-    	} catch (Exception e) {
-			e.printStackTrace();
+	public DefaultDrawingEditor getSharedEditor() {
+		if (sharedEditor == null) {
+			sharedEditor = new DefaultDrawingEditor();
 		}
-    }
+		return sharedEditor;
+	}
 
-    /**
-     * Creates toolbars for the application.
-     * This class always returns an empty list. Subclasses may return other
-     * values.
-     */
-    @Override
-    public List<JToolBar> createToolBars(Application a, View pr) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
-        DrawView p = (DrawView) pr;
+	@Override
+	public void initView(Application a, View p) {
+		if (a.isSharingToolsAmongViews()) {
+			((DrawView) p).setEditor(getSharedEditor());
+		}
+	}
 
-        DrawingEditor editor;
-        if (p == null) {
-            editor = getSharedEditor();
-        } else {
-            editor = p.getEditor();
-        }
+	public void initFurnitures() {
+		furnitureModel = FurnitureModel.getInstance();
+	}
+	
+	@Override
+	public ActionMap createActionMap(Application a, @Nullable View view) {
+		DrawView v = (DrawView) view;
+		
+		DrawingEditor editor;
+		if (v == null) {
+			editor = getSharedEditor();
+		} else {
+			if (a.isSharingToolsAmongViews()) {
+	            v.setEditor(editor=getSharedEditor());
+	        } else {
+	            v.setEditor(editor=new DefaultDrawingEditor());
+	        }
+		}
+		
+		ActionMap actionMap = super.createActionMap(a, v);
+		actionMap.put(GroupAction.ID, new GroupAction(editor, new SVGGroupFigure()));
+		actionMap.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
+		return actionMap;
+	}
+	//--------------------------------------------------------------
+	private Collection<Action> createSelectionActions(DrawingEditor editor) {
+		LinkedList<Action> a = new LinkedList<Action>();
+        a.add(new DuplicateAction());
 
-        LinkedList<JToolBar> list = new LinkedList<JToolBar>();
-        JToolBar tb;
-        tb = new JToolBar();
-        addCreationButtonsTo(tb, editor);
-        tb.setName(labels.getString("window.drawToolBar.title"));
-        list.add(tb);
-        //------------------------------------------------------------
-        ButtonGroup buttonGroup = (ButtonGroup) tb.getClientProperty("toolButtonGroup");
-        ToolListener listener = (ToolListener) tb.getClientProperty("toolHandler");
-        tb = new JToolBar();
-        tb.putClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY, buttonGroup);
-        tb.putClientProperty(TOOLBAR_HANDLER_PROPKEY, listener);
-        addFlatElementButtonsTo(tb, editor);
-        tb.setName(customLabels.getString("window.flatElementsToolBar.title"));
-        list.add(tb);
-        
-        tb = new JToolBar();
-        ButtonFactory.addAttributesButtonsTo(tb, editor);
-        tb.setName(labels.getString("window.attributesToolBar.title"));
-        list.add(tb);
-        
-        tb = new JToolBar();
-        ButtonFactory.addAlignmentButtonsTo(tb, editor);
-        tb.setName(labels.getString("window.alignmentToolBar.title"));
-        list.add(tb);
-        return list;
-    }
+        a.add(null); // separator
 
-    private void addFlatElementButtonsTo(JToolBar tb, DrawingEditor editor) {
-    	ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
-    	
-    	ButtonFactory.addToolTo(tb, editor, new CreationTool(new WallFigure()), "edit.createWall", customLabels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new WindowFigure()), "edit.createWindow", customLabels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new DoorFigure()), "edit.createDoor", customLabels);
-        
-        tb.addSeparator();
-        
-        
-        try {
+        a.add(new GroupAction(editor, new SVGGroupFigure()));
+        a.add(new UngroupAction(editor));
+
+        a.add(null); // separator
+
+        a.add(new BringToFrontAction(editor));
+        a.add(new SendToBackAction(editor));
+
+        return a;
+	}
+
+	/**
+	 * Creates toolbars for the application. This class always returns an empty
+	 * list. Subclasses may return other values.
+	 */
+	@Override
+	public List<JToolBar> createToolBars(Application a, View pr) {
+		ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
+		DrawView p = (DrawView) pr;
+
+		DrawingEditor editor;
+		if (p == null) {
+			editor = getSharedEditor();
+		} else {
+			editor = p.getEditor();
+		}
+
+		LinkedList<JToolBar> list = new LinkedList<JToolBar>();
+		JToolBar tb;
+		tb = new JToolBar();
+		Collection<Action> selectionActions = createSelectionActions(editor);
+		addSelectionToolTo(tb, editor, ButtonFactory.createDrawingActions(editor), selectionActions);
+
+		addDefaultCreationButtonsTo(tb, editor);
+		tb.setName(labels.getString("window.drawToolBar.title"));
+		list.add(tb);
+		// ------------------------------------------------------------
+		ButtonGroup buttonGroup = (ButtonGroup) tb.getClientProperty("toolButtonGroup");
+		ToolListener listener = (ToolListener) tb.getClientProperty("toolHandler");
+
+		tb = new JFurnitureToolBar(editor, TOOLBAR_BUTTONGROUP_PROPKEY, TOOLBAR_HANDLER_PROPKEY);
+		tb.putClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY, buttonGroup);
+		tb.putClientProperty(TOOLBAR_HANDLER_PROPKEY, listener);
+		addFlatElementButtonsTo(tb, editor);
+		tb.setName(customLabels.getString("window.flatElementsToolBar.title"));
+		list.add(tb);
+		customSelectionAction(editor, selectionActions);
+
+		tb = new JToolBar();
+		ButtonFactory.addAttributesButtonsTo(tb, editor);
+		tb.setName(labels.getString("window.attributesToolBar.title"));
+		list.add(tb);
+
+		tb = new JToolBar();
+		ButtonFactory.addAlignmentButtonsTo(tb, editor);
+		tb.setName(labels.getString("window.alignmentToolBar.title"));
+		list.add(tb);
+		return list;
+	}
+
+	private void addFlatElementButtonsTo(JToolBar tb, DrawingEditor editor) {
+		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
+
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new WallFigure()), "edit.createWall", customLabels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new WindowFigure()), "edit.createWindow", customLabels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DoorFigure()), "edit.createDoor", customLabels);
+
+		tb.addSeparator();
+		furnitureModel.addPropertyChangeListener((JFurnitureToolBar) tb);
+		tb.addMouseListener(new CreateFurnitureCatalogAction(furnitureModel, null, null));
+
+		try {
 			ButtonGroup group = (ButtonGroup) tb.getClientProperty(TOOLBAR_BUTTONGROUP_PROPKEY);
-			System.out.println(catalogues);
-			System.out.println(furnitures);
-			for (String catalog : catalogues) {
+			furnitureModel.forEachCategory((category, furnitures) -> {
 				JPopupButton btnCatalog = new JPopupButton();
+				btnCatalog.addMouseListener(new RemoveFurnitureCatalogAction(category, null));
 				btnCatalog.setFocusable(false);
-				btnCatalog.setToolTipText(catalog);
+				btnCatalog.setToolTipText(category);
 				boolean first = true;
-				for (int i = 0; i < furnitures.size(); i++) {
-					CustomFurniture furniture = furnitures.get(i);
-					if (!furniture.getCatalog().equals(catalog)) {
-						continue;
-					}
+				if (furnitures.size() < 1) {
+					btnCatalog.setText(category);
+				}
+				for (CustomFurniture furniture : furnitures) {
 					if (first) {
 						btnCatalog.setIcon(furniture.getIcon());
 						first = false;
 					}
 					JToggleButton button = new JToggleButton(furniture.getIcon());
-					button.setPreferredSize(new Dimension(22,22));
+					button.setPreferredSize(new Dimension(22, 22));
 					button.setToolTipText(furniture.getName());
 					Tool furnitureCreationTool = new CreationTool(furniture.getFigure());
 					button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
-			        button.setFocusable(false);
-			        furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));
-			        group.add(button);
-			        btnCatalog.add(button);
+					button.setFocusable(false);
+					furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));
+					// --------------popup context menu-------------
+					button.addMouseListener(new RemoveFurnitureAction(category, furniture));
+
+					group.add(button);
+					btnCatalog.add(button);
 				}
 				tb.add(btnCatalog);
-			}
-			
+			});
+
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+
 	}
 
-	private void addCreationButtonsTo(JToolBar tb, DrawingEditor editor) {
-        addDefaultCreationButtonsTo(tb, editor,
-                ButtonFactory.createDrawingActions(editor),
-                ButtonFactory.createSelectionActions(editor));
-    }
+	public void customSelectionAction(DrawingEditor editor, Collection<Action> selectionActions) {
+		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
 
-    public void addDefaultCreationButtonsTo(JToolBar tb, final DrawingEditor editor,
-            Collection<Action> drawingActions, Collection<Action> selectionActions) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
-        
-        FurnitureSaveAction fsAction = new FurnitureSaveAction(editor, catalogues.toArray(new String[0]));
-        
-        customLabels.configureAction(fsAction, FurnitureSaveAction.ID);
-        selectionActions.add(fsAction);
-        
-        
-        ButtonFactory.addSelectionToolTo(tb, editor, drawingActions, selectionActions);
-        tb.addSeparator();
+		AddFurnitureAction fsAction = new AddFurnitureAction(editor);
+		customLabels.configureAction(fsAction, AddFurnitureAction.ID);
+		selectionActions.add(fsAction);
 
-        AbstractAttributedFigure af;
-        CreationTool ct;
-        ConnectionTool cnt;
-        ConnectionFigure lc;
+		// ---------------
+		selectionActions.add(null);
 
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new RectangleFigure()), "edit.createRectangle", labels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new RoundRectangleFigure()), "edit.createRoundRectangle", labels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new EllipseFigure()), "edit.createEllipse", labels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new DiamondFigure()), "edit.createDiamond", labels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new TriangleFigure()), "edit.createTriangle", labels);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new LineFigure()), "edit.createLine", labels);
-        
-        ButtonFactory.addToolTo(tb, editor, ct = new CreationTool(new LineFigure()), "edit.createArrow", labels);
-        af = (AbstractAttributedFigure) ct.getPrototype(); 
-        af.set(END_DECORATION, new ArrowTip(0.35, 12, 11.3));
-        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new LineConnectionFigure()), "edit.createLineConnection", labels);
-        ButtonFactory.addToolTo(tb, editor, cnt = new ConnectionTool(new LineConnectionFigure()), "edit.createElbowConnection", labels);
-        lc = cnt.getPrototype();
-        lc.setLiner(new ElbowLiner());
-        ButtonFactory.addToolTo(tb, editor, cnt = new ConnectionTool(new LineConnectionFigure()), "edit.createCurvedConnection", labels);
-        lc = cnt.getPrototype();
-        lc.setLiner(new CurvedLiner());
-        ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure()), "edit.createScribble", labels);
-        ButtonFactory.addToolTo(tb, editor, new BezierTool(new BezierFigure(true)), "edit.createPolygon", labels);
-        ButtonFactory.addToolTo(tb, editor, new TextCreationTool(new TextFigure()), "edit.createText", labels);
-        ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", labels);
-        ButtonFactory.addToolTo(tb, editor, new ImageTool(new ImageFigure()), "edit.createImage", labels);
-    }
+		AbstractTransformAction hFlipAction = new HorizontalFlipAction(editor);
+		customLabels.configureAction(hFlipAction, "edit.horizontalFlip");
+		hFlipAction.putValue(ActionUtil.SUBMENU_KEY, "Flip");
+		selectionActions.add(hFlipAction);
 
-    @Override
-    public URIChooser createOpenChooser(Application a, View v) {
-        JFileURIChooser c = new JFileURIChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
-        return c;
-    }
+		AbstractTransformAction vFlipAction = new VerticalFlipAction(editor);
+		customLabels.configureAction(vFlipAction, "edit.verticalFlip");
+		vFlipAction.putValue(ActionUtil.SUBMENU_KEY, "Flip");
+		selectionActions.add(vFlipAction);
+	}
 
-    @Override
-    public URIChooser createSaveChooser(Application a, View v) {
-        JFileURIChooser c = new JFileURIChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
-        return c;
-    }
+	private void addSelectionToolTo(JToolBar tb, final DrawingEditor editor, Collection<Action> drawingActions,
+			Collection<Action> selectionActions) {
+		DelegationSelectionTool selectionTool = new DelegationSelectionTool(drawingActions, selectionActions);
+		ButtonFactory.addSelectionToolTo(tb, editor, selectionTool);
+		
+		tb.addSeparator();
+	}
 
+	public void addDefaultCreationButtonsTo(JToolBar tb, final DrawingEditor editor) {
+		ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+		
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGRectFigure()), "edit.createRectangle", labels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGEllipseFigure()), "edit.createEllipse", labels);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGTriangleFigure()), "edit.createTriangle", labels);
+		Map<AttributeKey<?>, Object> attributes = new HashMap<AttributeKey<?>, Object>();
+        attributes.put(AttributeKeys.FILL_COLOR, null);
+        attributes.put(PATH_CLOSED, false);
+		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGPathFigure()), "edit.createLine", labels);
+
+		// ------------------ArcTool---------------------------
+//		ButtonFactory.addToolTo(tb, editor, new CreationTool(new FigureRotationProxy(new ArcFigure())), "edit.createArc", customLabels);
+		CreationTool ct;
+		AbstractAttributedCompositeFigure af;
+		
+		ButtonFactory.addToolTo(tb, editor, ct = new CreationTool(new SVGPathFigure()), "edit.createArrow", labels);
+		af = (AbstractAttributedCompositeFigure) ct.getPrototype();
+		af.set(AttributeKeys.END_DECORATION, new ArrowTip(0.35, 12, 11.3));
+		
+		ButtonFactory.addToolTo(tb, editor, new PathTool(new SVGPathFigure(), new SVGBezierFigure(), attributes), "edit.createScribble", labels);
+		ButtonFactory.addToolTo(tb, editor, new PathTool(new SVGPathFigure(), new SVGBezierFigure(true)), "edit.createPolygon", labels);
+		
+		attributes = new HashMap<AttributeKey<?>, Object>();
+        attributes.put(AttributeKeys.FILL_COLOR, Color.black);
+        attributes.put(AttributeKeys.STROKE_COLOR, null);
+		ButtonFactory.addToolTo(tb, editor, new TextCreationTool(new SVGTextFigure(), attributes), "edit.createText", labels);
+		ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new SVGTextAreaFigure(), attributes), "edit.createTextArea",
+				labels);
+		ButtonFactory.addToolTo(tb, editor, new ImageTool(new SVGImageFigure()), "edit.createImage", labels);
+	}
+
+	@Override
+	public URIChooser createOpenChooser(Application a, View v) {
+		JFileURIChooser c = new JFileURIChooser();
+		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml", "xml"));
+		return c;
+	}
+
+	@Override
+	public URIChooser createSaveChooser(Application a, View v) {
+		JFileURIChooser c = new JFileURIChooser();
+		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml", "xml"));
+		return c;
+	}
 
 }

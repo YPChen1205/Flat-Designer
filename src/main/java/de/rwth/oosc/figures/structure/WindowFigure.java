@@ -1,13 +1,13 @@
-package de.rwth.oosc.structure;
+package de.rwth.oosc.figures.structure;
 
 
 import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
+import java.awt.geom.Rectangle2D;
 
-import org.jhotdraw.draw.RectangleFigure;
+import de.rwth.oosc.figures.svg.SVGRectFigure;
 
-public class WindowFigure extends RectangleFigure {
+public class WindowFigure extends SVGRectFigure {
 	/**
 	 * 
 	 */
@@ -15,13 +15,12 @@ public class WindowFigure extends RectangleFigure {
 
 	@Override
 	public void setBounds(Double anchor, Double lead) {
+		lead.y = anchor.y + WallFigure.WALL_THICKNESS;
 		super.setBounds(anchor, lead);
-		rectangle.height = WallFigure.WALL_THICKNESS;
 	}
 	
 	@Override
 	protected void drawStroke(Graphics2D g) {
-		// TODO Auto-generated method stub
 		Rectangle2D.Double myWindow = getBounds();
 		double x = myWindow.getX();
 		double y = myWindow.getY();

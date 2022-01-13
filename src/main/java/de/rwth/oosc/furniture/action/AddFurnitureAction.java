@@ -1,56 +1,49 @@
 package de.rwth.oosc.furniture.action;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.action.AbstractSelectedAction;
 
-import de.rwth.oosc.DrawApplicationModel;
 import de.rwth.oosc.dialog.FurnitureSaveDialog;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
+import de.rwth.oosc.furniture.FurnitureModel;
 
-public class FurnitureSaveAction extends AbstractSelectedAction {
+public class AddFurnitureAction extends AbstractSelectedAction {
 
 	private static final long serialVersionUID = 1L;
-	
-	public static final String ID = "FurnitureSaveAction.ID";
-	
-	private String[] catalogues;
 
-	public FurnitureSaveAction(DrawingEditor editor, String[] catalogues) {
+	public static final String ID = "FurnitureSaveAction.ID";
+
+	public AddFurnitureAction(DrawingEditor editor) {
 		super(editor);
-		
-		this.catalogues = catalogues;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		GroupFigure gf = new GroupFigure();
+		SVGGroupFigure gf = new SVGGroupFigure();
 		Set<Figure> figureSet = getEditor().getActiveView().getSelectedFigures();
-		if(figureSet.size() > 1) {
+		Object[] figureArray = figureSet.toArray();
+		if (figureSet.size() == 1 && figureArray[0] instanceof GroupFigure) {
+			gf = (SVGGroupFigure) figureArray[0];
+		} else {
 			gf.addAll(figureSet);
-		}else {
-			gf = (GroupFigure) figureSet.toArray()[0];
 		}
-		CustomFurniture customfuniture = new CustomFurniture(gf);
 		
-		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent() ,catalogues);
+
+		FurnitureSaveDialog dialog = new FurnitureSaveDialog(getView().getComponent(), FurnitureModel.getInstance().getCatalogues().toArray(new String[0]));
 		
 		if (dialog.isApproved()) {
 			String name = dialog.getTypedName();
 			String catalogue = dialog.getSelectedCatalogue();
 			try {
-				customfuniture.saveFigure(name, catalogue);
+				CustomFurniture furniture = new CustomFurniture(name, gf);
+				FurnitureModel.getInstance().addFurniture(catalogue, furniture);
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
