@@ -8,8 +8,6 @@
 
 package de.rwth.oosc;
 
-import java.awt.Cursor;
-
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.OSXApplication;
 import org.jhotdraw.app.SDIApplication;

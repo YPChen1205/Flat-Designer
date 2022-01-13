@@ -11,6 +11,7 @@ import org.jhotdraw.geom.BezierPath;
 
 import de.rwth.oosc.figures.handle.ArcNodeHandle;
 
+@Deprecated
 public class ArcFigure extends LineFigure {
 
 	private static final long serialVersionUID = 1L;

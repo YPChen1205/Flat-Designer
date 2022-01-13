@@ -8,21 +8,30 @@
 
 package de.rwth.oosc;
 
-import org.jhotdraw.draw.liner.ElbowLiner;
-import org.jhotdraw.draw.liner.CurvedLiner;
-import org.jhotdraw.draw.connector.ChopTriangleConnector;
-import org.jhotdraw.draw.connector.ChopRoundRectangleConnector;
-import org.jhotdraw.draw.connector.ChopRectangleConnector;
-import org.jhotdraw.draw.connector.ChopEllipseConnector;
-import org.jhotdraw.draw.connector.ChopDiamondConnector;
+import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.DefaultDrawing;
+import org.jhotdraw.draw.DiamondFigure;
+import org.jhotdraw.draw.QuadTreeDrawing;
 import org.jhotdraw.draw.connector.ChopBezierConnector;
+import org.jhotdraw.draw.connector.ChopDiamondConnector;
+import org.jhotdraw.draw.connector.ChopEllipseConnector;
+import org.jhotdraw.draw.connector.ChopRectangleConnector;
+import org.jhotdraw.draw.connector.ChopRoundRectangleConnector;
+import org.jhotdraw.draw.connector.ChopTriangleConnector;
 import org.jhotdraw.draw.decoration.ArrowTip;
-import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.liner.CurvedLiner;
+import org.jhotdraw.draw.liner.ElbowLiner;
 import org.jhotdraw.xml.DefaultDOMFactory;
 
-import de.rwth.oosc.figures.ArcFigure;
-import de.rwth.oosc.figures.FigureProxy;
-import de.rwth.oosc.figures.FigureRotationProxy;
+import de.rwth.oosc.figures.svg.SVGBezierFigure;
+import de.rwth.oosc.figures.svg.SVGEllipseFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
+import de.rwth.oosc.figures.svg.SVGImageFigure;
+import de.rwth.oosc.figures.svg.SVGPathFigure;
+import de.rwth.oosc.figures.svg.SVGRectFigure;
+import de.rwth.oosc.figures.svg.SVGTextAreaFigure;
+import de.rwth.oosc.figures.svg.SVGTextFigure;
+import de.rwth.oosc.figures.svg.SVGTriangleFigure;
 /**
  * DrawFigureFactory.
  *
@@ -34,21 +43,15 @@ public class DrawFigureFactory extends DefaultDOMFactory {
         { DefaultDrawing.class, "drawing" },
         { QuadTreeDrawing.class, "drawing" },
         { DiamondFigure.class, "diamond" },
-        { TriangleFigure.class, "triangle" },
-        { BezierFigure.class, "bezier" },
-        { ArcFigure.class, "arc" },
-        { RectangleFigure.class, "r" },
-        { RoundRectangleFigure.class, "rr" },
-        { LineFigure.class, "l" },
-        { BezierFigure.class, "b" },
-        { LineConnectionFigure.class, "lnk" },
-        { EllipseFigure.class, "e" },
-        { TextFigure.class, "t" },
-        { TextAreaFigure.class, "ta" },
-        { ImageFigure.class, "image" },
-        { GroupFigure.class, "g" },
-        { FigureProxy.class, "fp" },
-        { FigureRotationProxy.class, "frp"},
+        { SVGTriangleFigure.class, "triangle" },
+        { SVGBezierFigure.class, "bezier" },
+        { SVGRectFigure.class, "r" },
+        { SVGPathFigure.class, "l" },
+        { SVGEllipseFigure.class, "e" },
+        { SVGTextFigure.class, "t" },
+        { SVGTextAreaFigure.class, "ta" },
+        { SVGImageFigure.class, "image" },
+        { SVGGroupFigure.class, "g" },
         
         { ArrowTip.class, "arrowTip" },
         { ChopRectangleConnector.class, "rConnector" },

@@ -22,17 +22,16 @@ import org.apache.commons.io.FileUtils;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.GroupFigure;
-import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 
-import de.rwth.oosc.DrawFigureFactory;
 import de.rwth.oosc.furniture.CustomFurniture;
 
 public class IOUtil {
 
 	public static final String CUSTOM_FURNITURE_PATH = "/de/rwth/oosc/flatdesigner/customfurnitures/";
 
-	private static DOMStorableInputOutputFormat inoutFormat = new DOMStorableInputOutputFormat(new DrawFigureFactory());
-
+	private static SVGInputFormat inFormat = new SVGInputFormat();
+	private static SVGOutputFormat outFormat = new SVGOutputFormat();
+	
 	public static Map<String, Set<CustomFurniture>> loadDefaultModel() {
 		
 		Map<String, Set<CustomFurniture>> fMap = new HashMap<String, Set<CustomFurniture>>();
@@ -109,10 +108,10 @@ public class IOUtil {
 	public static CustomFurniture loadFurniture(File furnitureFile, File iconFile)
 			throws IOException, URISyntaxException {
 		Drawing drawing = new DefaultDrawing();
-		drawing.addInputFormat(inoutFormat);
+		drawing.addInputFormat(inFormat);
 
 		// load XML
-		drawing.getInputFormats().get(0).read(furnitureFile.toURI(), drawing);
+		inFormat.read(furnitureFile.toURI(), drawing);
 		GroupFigure f = (GroupFigure) drawing.getChild(0).clone();
 
 		// load image for icon
@@ -162,9 +161,9 @@ public class IOUtil {
 			throws FileNotFoundException, IOException, URISyntaxException {
 		Drawing drawing = new DefaultDrawing();
 		drawing.add(furniture.getFigure());
-		drawing.addOutputFormat(inoutFormat);
+		drawing.addOutputFormat(outFormat);
 		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(getXMLPath(categoryPath, furniture.getName()))));
-		drawing.getOutputFormats().get(0).write(
+		outFormat.write(
 				outputStream,
 				drawing);
 		outputStream.close();

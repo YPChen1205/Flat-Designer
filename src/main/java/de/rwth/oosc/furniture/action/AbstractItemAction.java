@@ -9,7 +9,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import de.rwth.oosc.furniture.CustomFurniture;
-import de.rwth.oosc.furniture.FurnitureModel;
 
 public abstract class AbstractItemAction extends MouseAdapter{
 	

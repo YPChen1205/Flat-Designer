@@ -28,7 +28,8 @@ import static de.rwth.oosc.figures.svg.SVGAttributeKeys.*;
 public class SVGRectRadiusHandle extends AbstractHandle {
 
     private static final boolean DEBUG = false;
-    private static final int OFFSET = 6;
+    @SuppressWarnings("unused")
+	private static final int OFFSET = 6;
     private Dimension2DDouble originalArc2D;
 
     /** Creates a new instance. */
@@ -114,7 +115,8 @@ public class SVGRectRadiusHandle extends AbstractHandle {
         fireUndoableEditHappened(edit);
     }
 
-    @Override
+    @SuppressWarnings("incomplete-switch")
+	@Override
     public void keyPressed(KeyEvent evt) {
         SVGRectFigure owner = (SVGRectFigure) getOwner();
         Dimension2DDouble oldArc = new Dimension2DDouble(owner.getArcWidth(), owner.getArcHeight());

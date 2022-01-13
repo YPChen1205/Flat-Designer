@@ -29,29 +29,19 @@ import org.jhotdraw.app.ApplicationModel;
 import org.jhotdraw.app.DefaultApplicationModel;
 import org.jhotdraw.app.View;
 import org.jhotdraw.app.action.ActionUtil;
+import org.jhotdraw.app.action.edit.DuplicateAction;
 import org.jhotdraw.draw.AbstractAttributedCompositeFigure;
-import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.DefaultDrawingEditor;
-import org.jhotdraw.draw.DiamondFigure;
 import org.jhotdraw.draw.DrawingEditor;
-import org.jhotdraw.draw.EllipseFigure;
-import org.jhotdraw.draw.GroupFigure;
-import org.jhotdraw.draw.ImageFigure;
-import org.jhotdraw.draw.LineFigure;
-import org.jhotdraw.draw.RectangleFigure;
-import org.jhotdraw.draw.RoundRectangleFigure;
-import org.jhotdraw.draw.TextAreaFigure;
-import org.jhotdraw.draw.TextFigure;
-import org.jhotdraw.draw.TriangleFigure;
+import org.jhotdraw.draw.action.BringToFrontAction;
 import org.jhotdraw.draw.action.ButtonFactory;
 import org.jhotdraw.draw.action.GroupAction;
+import org.jhotdraw.draw.action.SendToBackAction;
 import org.jhotdraw.draw.action.UngroupAction;
 import org.jhotdraw.draw.decoration.ArrowTip;
 import org.jhotdraw.draw.event.ToolListener;
-import org.jhotdraw.draw.tool.BezierTool;
 import org.jhotdraw.draw.tool.CreationTool;
 import org.jhotdraw.draw.tool.DelegationSelectionTool;
 import org.jhotdraw.draw.tool.ImageTool;
@@ -68,9 +58,6 @@ import de.rwth.oosc.actions.AbstractTransformAction;
 import de.rwth.oosc.actions.HorizontalFlipAction;
 import de.rwth.oosc.actions.VerticalFlipAction;
 import de.rwth.oosc.components.JFurnitureToolBar;
-import de.rwth.oosc.figures.ArcFigure;
-import de.rwth.oosc.figures.FigureProxy;
-import de.rwth.oosc.figures.FigureRotationProxy;
 import de.rwth.oosc.figures.structure.DoorFigure;
 import de.rwth.oosc.figures.structure.WallFigure;
 import de.rwth.oosc.figures.structure.WindowFigure;
@@ -90,7 +77,6 @@ import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
 import de.rwth.oosc.tool.PathTool;
-import de.rwth.oosc.tool.RotationDelegationSelectionTool;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
@@ -162,6 +148,23 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		actionMap.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
 		return actionMap;
 	}
+	//--------------------------------------------------------------
+	private Collection<Action> createSelectionActions(DrawingEditor editor) {
+		LinkedList<Action> a = new LinkedList<Action>();
+        a.add(new DuplicateAction());
+
+        a.add(null); // separator
+
+        a.add(new GroupAction(editor, new SVGGroupFigure()));
+        a.add(new UngroupAction(editor));
+
+        a.add(null); // separator
+
+        a.add(new BringToFrontAction(editor));
+        a.add(new SendToBackAction(editor));
+
+        return a;
+	}
 
 	/**
 	 * Creates toolbars for the application. This class always returns an empty
@@ -183,7 +186,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		LinkedList<JToolBar> list = new LinkedList<JToolBar>();
 		JToolBar tb;
 		tb = new JToolBar();
-		Collection<Action> selectionActions = ButtonFactory.createSelectionActions(editor);
+		Collection<Action> selectionActions = createSelectionActions(editor);
 		addSelectionToolTo(tb, editor, ButtonFactory.createDrawingActions(editor), selectionActions);
 
 		addDefaultCreationButtonsTo(tb, editor);
@@ -294,8 +297,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 
 	public void addDefaultCreationButtonsTo(JToolBar tb, final DrawingEditor editor) {
 		ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
-
+		
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGRectFigure()), "edit.createRectangle", labels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGEllipseFigure()), "edit.createEllipse", labels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new SVGTriangleFigure()), "edit.createTriangle", labels);

@@ -62,7 +62,8 @@ public class CSSRule {
         this.selector = (type == SelectorType.ELEMENT_NAME) ? selector : selector.substring(1);
     }
     
-    public boolean matches(Element elem) {
+    @SuppressWarnings("incomplete-switch")
+	public boolean matches(Element elem) {
         boolean isMatch = false;
         switch (type) {
             case ALL :
@@ -94,7 +95,8 @@ public class CSSRule {
         }
         return isMatch;
     }
-    public boolean matches(IXMLElement elem) {
+    @SuppressWarnings("incomplete-switch")
+	public boolean matches(IXMLElement elem) {
         boolean isMatch = false;
         switch (type) {
             case ALL :

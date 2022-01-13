@@ -120,7 +120,8 @@ public class SVGGroupFigure extends GroupFigure implements SVGFigure {
         return (Rectangle2D.Double) cachedBounds.clone();
     }
 
-    @Override
+    @SuppressWarnings("incomplete-switch")
+	@Override
     public LinkedList<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
         switch (detailLevel) {

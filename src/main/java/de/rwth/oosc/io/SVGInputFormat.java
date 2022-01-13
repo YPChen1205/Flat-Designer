@@ -491,7 +491,8 @@ public class SVGInputFormat implements InputFormat {
     private void readDefsElement(IXMLElement elem)
             throws IOException {
         for (IXMLElement child : elem.getChildren()) {
-            Figure childFigure = readElement(child);
+            @SuppressWarnings("unused")
+			Figure childFigure = readElement(child);
         }
     }
 
@@ -1393,7 +1394,8 @@ public class SVGInputFormat implements InputFormat {
      * Returns a value as a String array.
      * The values are separated by commas with optional quotes and white space.
      */
-    public static String[] toQuotedAndCommaSeparatedArray(String str) throws IOException {
+    @SuppressWarnings("incomplete-switch")
+	public static String[] toQuotedAndCommaSeparatedArray(String str) throws IOException {
         LinkedList<String> values = new LinkedList<String>();
         StreamTokenizer tt = new StreamTokenizer(new StringReader(str));
         tt.wordChars('a', 'z');
@@ -2734,7 +2736,8 @@ public class SVGInputFormat implements InputFormat {
      * http://www.w3.org/TR/SVGMobile12/feature.html#GraphicsAttribute
      */
 
-    private void readGraphicsAttributes(IXMLElement elem, Figure f)
+    @SuppressWarnings("unused")
+	private void readGraphicsAttributes(IXMLElement elem, Figure f)
             throws IOException {
         Object value;
         // 'display'

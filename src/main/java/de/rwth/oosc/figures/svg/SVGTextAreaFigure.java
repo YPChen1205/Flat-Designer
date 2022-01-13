@@ -36,7 +36,8 @@ public class SVGTextAreaFigure extends SVGAttributedFigure
 
     private Rectangle2D.Double bounds = new Rectangle2D.Double();
     private boolean editable = true;
-    private static final BasicStroke dashes = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f, new float[]{4f, 4f}, 0f);
+    @SuppressWarnings("unused")
+	private static final BasicStroke dashes = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f, new float[]{4f, 4f}, 0f);
     /**
      * This is a cached value to improve the performance of method isTextOverflow();
      */

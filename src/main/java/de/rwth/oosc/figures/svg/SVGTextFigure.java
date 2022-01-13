@@ -98,7 +98,8 @@ public class SVGTextFigure
         return rotates.clone();
     }
     
-    @Override
+    @SuppressWarnings("incomplete-switch")
+	@Override
     public Rectangle2D.Double getBounds() {
         if (cachedBounds == null) {
             cachedBounds = new Rectangle2D.Double();
@@ -168,7 +169,8 @@ public class SVGTextFigure
         return getTextShape().getBounds2D().contains(p);
     }
     
-    private Shape getTextShape() {
+    @SuppressWarnings("incomplete-switch")
+	private Shape getTextShape() {
         if (cachedTextShape == null) {
             String text = getText();
             if (text == null || text.length() == 0) {
@@ -390,7 +392,8 @@ public class SVGTextFigure
         return new Dimension2DDouble(b.width, b.height);
     }
     
-    @Override
+    @SuppressWarnings("incomplete-switch")
+	@Override
     public Collection<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
         switch (detailLevel % 2) {

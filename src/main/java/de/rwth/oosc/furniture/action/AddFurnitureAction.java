@@ -9,6 +9,7 @@ import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.action.AbstractSelectedAction;
 
 import de.rwth.oosc.dialog.FurnitureSaveDialog;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
 
@@ -24,11 +25,11 @@ public class AddFurnitureAction extends AbstractSelectedAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		GroupFigure gf = new GroupFigure();
+		SVGGroupFigure gf = new SVGGroupFigure();
 		Set<Figure> figureSet = getEditor().getActiveView().getSelectedFigures();
 		Object[] figureArray = figureSet.toArray();
 		if (figureSet.size() == 1 && figureArray[0] instanceof GroupFigure) {
-			gf = (GroupFigure) figureArray[0];
+			gf = (SVGGroupFigure) figureArray[0];
 		} else {
 			gf.addAll(figureSet);
 		}

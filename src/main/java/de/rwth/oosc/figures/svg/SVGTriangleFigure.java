@@ -17,12 +17,13 @@ public class SVGTriangleFigure extends AbstractCustomSVGFigure {
     }
 
 	@Override
-	protected void computePath(double x, double y, double width, double height) {
-		figurePath = new Path2D.Double();
-		figurePath.moveTo(x + width / 2, y);
-		figurePath.lineTo(x + width, y + height);
-		figurePath.lineTo(x, y + height);
-		figurePath.closePath();
+	protected Path2D.Double computePath(double x, double y, double width, double height) {
+		Path2D.Double path = new Path2D.Double();
+		path.moveTo(x + width / 2, y);
+		path.lineTo(x + width, y + height);
+		path.lineTo(x, y + height);
+		path.closePath();
+		return path;
 	}
 
 }

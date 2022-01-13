@@ -1,13 +1,10 @@
 package de.rwth.oosc.components;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 

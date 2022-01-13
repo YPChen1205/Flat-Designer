@@ -31,15 +31,14 @@ public abstract class AbstractCustomSVGFigure extends SVGAttributedFigure implem
 	
 	private transient Shape cachedHitShape;
 
-	protected abstract void computePath(double x, double y, double width, double height);
+	protected abstract Path2D.Double computePath(double x, double y, double width, double height);
 	
 	public AbstractCustomSVGFigure() {
 		this(0,0,0,0);
 	}
 	
 	public AbstractCustomSVGFigure(double x, double y, double width, double height) {
-		figurePath = new Path2D.Double();
-		computePath(x, y, width, height);
+		figurePath = computePath(x, y, width, height);
 		SVGAttributeKeys.setDefaults(this);
 		setConnectable(false);
 	}
@@ -54,7 +53,7 @@ public abstract class AbstractCustomSVGFigure extends SVGAttributedFigure implem
 		double y = Math.min(anchor.y, lead.y);
         double width = Math.max(0.1, Math.abs(lead.x - anchor.x));
         double height = Math.max(0.1, Math.abs(lead.y - anchor.y));
-        computePath(x, y, width, height);
+        figurePath = computePath(x, y, width, height);
         invalidate();
 	}
 	

@@ -602,7 +602,8 @@ public class SVGOutputFormat implements OutputFormat {
     // ------------
     /* Writes shape attributes.
      */
-    protected void writeShapeAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> m)
+    @SuppressWarnings("unused")
+	protected void writeShapeAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> m)
             throws IOException {
         Color color;
         String value;
@@ -878,7 +879,8 @@ public class SVGOutputFormat implements OutputFormat {
      * http://www.w3.org/TR/SVGMobile12/feature.html#Font
      */
 
-    private void writeFontAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> a)
+    @SuppressWarnings("unused")
+	private void writeFontAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> a)
             throws IOException {
         String value;
         double doubleValue;
@@ -960,7 +962,8 @@ public class SVGOutputFormat implements OutputFormat {
     /* Writes viewport attributes.
      */
 
-    private void writeViewportAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> a)
+    @SuppressWarnings("unused")
+	private void writeViewportAttributes(IXMLElement elem, Map<AttributeKey<?>, Object> a)
             throws IOException {
         Object value;
         Double doubleValue;

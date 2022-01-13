@@ -29,8 +29,6 @@ public class LinearGradient implements Gradient {
     private Color[] stopColors;
     private double[] stopOpacities;
     private AffineTransform transform;
-    private int spreadMethod;
-    
     /** Creates a new instance. */
     public LinearGradient() {
     }

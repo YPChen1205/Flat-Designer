@@ -1,7 +1,6 @@
 package de.rwth.oosc.figures.structure;
 
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.LineFigure;
 
 import de.rwth.oosc.figures.svg.SVGPathFigure;
 

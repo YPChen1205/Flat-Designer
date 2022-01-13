@@ -1,5 +1,6 @@
 package de.rwth.oosc.figures.structure;
 
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Double;
 
 import org.jhotdraw.geom.BezierPath;
@@ -17,12 +18,12 @@ public class DoorFigure extends AbstractCustomSVGFigure {
 		double x = Math.min(anchor.x, lead.x);
 		double y = Math.min(anchor.y, lead.y);
         double width = Math.max(0.1, Math.abs(lead.x - anchor.x));
-        computePath(x, y, width, width);
+        figurePath = computePath(x, y, width, width);
         invalidate();
 	}
 
 	@Override
-	protected void computePath(double x, double y, double width, double height) {
+	protected Path2D.Double computePath(double x, double y, double width, double height) {
 		Node start = new Node(x, y+width-DOOR_THICKNESS);	    
 	    BezierPath path = new BezierPath();
 	    path.add(start);
@@ -31,6 +32,6 @@ public class DoorFigure extends AbstractCustomSVGFigure {
 	    path.lineTo(x, y+height);
 	    path.lineTo(x, y+height-DOOR_THICKNESS);
 	    path.lineTo(x+ width, y+height-DOOR_THICKNESS);
-	    figurePath = path.toGeneralPath();
+	    return path.toGeneralPath();
 	}
 }
