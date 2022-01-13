@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -27,6 +26,7 @@ import org.jhotdraw.annotation.Nullable;
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.ApplicationModel;
 import org.jhotdraw.app.DefaultApplicationModel;
+import org.jhotdraw.app.MenuBuilder;
 import org.jhotdraw.app.View;
 import org.jhotdraw.app.action.ActionUtil;
 import org.jhotdraw.app.action.edit.DuplicateAction;
@@ -128,26 +128,6 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 		furnitureModel = FurnitureModel.getInstance();
 	}
 	
-	@Override
-	public ActionMap createActionMap(Application a, @Nullable View view) {
-		DrawView v = (DrawView) view;
-		
-		DrawingEditor editor;
-		if (v == null) {
-			editor = getSharedEditor();
-		} else {
-			if (a.isSharingToolsAmongViews()) {
-	            v.setEditor(editor=getSharedEditor());
-	        } else {
-	            v.setEditor(editor=new DefaultDrawingEditor());
-	        }
-		}
-		
-		ActionMap actionMap = super.createActionMap(a, v);
-		actionMap.put(GroupAction.ID, new GroupAction(editor, new SVGGroupFigure()));
-		actionMap.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
-		return actionMap;
-	}
 	//--------------------------------------------------------------
 	private Collection<Action> createSelectionActions(DrawingEditor editor) {
 		LinkedList<Action> a = new LinkedList<Action>();
@@ -164,6 +144,11 @@ public class DrawApplicationModel extends DefaultApplicationModel {
         a.add(new SendToBackAction(editor));
 
         return a;
+	}
+	
+	@Override
+	protected MenuBuilder createMenuBuilder() {
+		return new DesignerMenuBuilder();
 	}
 
 	/**
@@ -330,15 +315,21 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 	@Override
 	public URIChooser createOpenChooser(Application a, View v) {
 		JFileURIChooser c = new JFileURIChooser();
-		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml", "xml"));
+		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .svg", "svg"));
 		return c;
 	}
 
 	@Override
 	public URIChooser createSaveChooser(Application a, View v) {
 		JFileURIChooser c = new JFileURIChooser();
-		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml", "xml"));
+		c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .svg", "svg"));
 		return c;
 	}
 
+	@Override
+	public URIChooser createExportChooser(Application a, @Nullable View v) {
+		JFileURIChooser c = (JFileURIChooser) super.createExportChooser(a, v);
+		c.addChoosableFileFilter(new ExtensionFileFilter("PNG File .png", "png"));
+		return c;
+	}
 }

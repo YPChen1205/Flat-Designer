@@ -8,32 +8,48 @@
  */
 package de.rwth.oosc;
 
-import org.jhotdraw.draw.io.TextInputFormat;
-import org.jhotdraw.draw.io.OutputFormat;
-import org.jhotdraw.draw.io.InputFormat;
-import org.jhotdraw.draw.io.ImageOutputFormat;
-import org.jhotdraw.draw.io.ImageInputFormat;
-import org.jhotdraw.draw.print.DrawingPageable;
-import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
-import java.awt.geom.*;
+import java.awt.BorderLayout;
+import java.awt.Insets;
+import java.awt.geom.Point2D;
 import java.awt.print.Pageable;
-import org.jhotdraw.gui.*;
-import org.jhotdraw.undo.*;
-import org.jhotdraw.util.*;
-import java.awt.*;
-import java.beans.*;
-import java.io.*;
-import java.lang.reflect.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import javax.swing.*;
-import javax.swing.border.*;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+
 import org.jhotdraw.app.AbstractView;
 import org.jhotdraw.app.action.edit.RedoAction;
 import org.jhotdraw.app.action.edit.UndoAction;
-import org.jhotdraw.draw.*;
-import org.jhotdraw.draw.action.*;
+import org.jhotdraw.draw.DefaultDrawingEditor;
+import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.ImageFigure;
+import org.jhotdraw.draw.QuadTreeDrawing;
+import org.jhotdraw.draw.TextAreaFigure;
+import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.action.ButtonFactory;
+import org.jhotdraw.draw.io.ImageInputFormat;
+import org.jhotdraw.draw.io.ImageOutputFormat;
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.OutputFormat;
+import org.jhotdraw.draw.io.TextInputFormat;
+import org.jhotdraw.draw.print.DrawingPageable;
+import org.jhotdraw.gui.PlacardScrollPaneLayout;
 import org.jhotdraw.gui.URIChooser;
 import org.jhotdraw.net.URIUtil;
+import org.jhotdraw.undo.UndoRedoManager;
+import org.jhotdraw.util.ResourceBundleUtil;
+
+import de.rwth.oosc.io.SVGInputFormat;
+import de.rwth.oosc.io.SVGOutputFormat;
 
 /**
  * Provides a view on a drawing.
@@ -45,7 +61,7 @@ import org.jhotdraw.net.URIUtil;
  */
 public class DrawView extends AbstractView {
       private static final long serialVersionUID = 1L;
-  
+        
     /**
      * Each DrawView uses its own undo redo manager.
      * This allows for undoing and redoing actions per view.
@@ -102,10 +118,10 @@ public class DrawView extends AbstractView {
      */
     protected Drawing createDrawing() {
         Drawing drawing = new QuadTreeDrawing();
-        DOMStorableInputOutputFormat ioFormat =
-                new DOMStorableInputOutputFormat(new DrawFigureFactory());
+        SVGInputFormat inFormat = new SVGInputFormat();
+        SVGOutputFormat outFormat = new SVGOutputFormat();
         
-        drawing.addInputFormat(ioFormat);
+        drawing.addInputFormat(inFormat);
         ImageFigure prototype = new ImageFigure();
         drawing.addInputFormat(new ImageInputFormat(prototype));
         drawing.addInputFormat(new TextInputFormat(new TextFigure()));
@@ -113,7 +129,7 @@ public class DrawView extends AbstractView {
         taf.setBounds(new Point2D.Double(10,10), new Point2D.Double(60,40));
         drawing.addInputFormat(new TextInputFormat(taf));
         
-        drawing.addOutputFormat(ioFormat);
+        drawing.addOutputFormat(outFormat);
         drawing.addOutputFormat(new ImageOutputFormat());
         return drawing;
     }
