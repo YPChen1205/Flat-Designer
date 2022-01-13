@@ -142,6 +142,7 @@ public class IOUtil {
 			throws FileNotFoundException, IOException, URISyntaxException {
 		BufferedImage image = toBufferedImage(((ImageIcon) furniture.getIcon()).getImage());
 		ImageIO.write(image, "PNG", new File(getIconPath(categoryPath, furniture.getName())));
+		image.flush();
 	}
 
 	public static void saveFurnitureDefault(String catalogue, CustomFurniture furniture) {
