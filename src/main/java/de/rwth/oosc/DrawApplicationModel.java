@@ -77,6 +77,7 @@ import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
 import de.rwth.oosc.tool.PathTool;
+import de.rwth.oosc.tool.RoomSelectionTool;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 /**
@@ -204,6 +205,8 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 	private void addFlatElementButtonsTo(JToolBar tb, DrawingEditor editor) {
 		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(CUSTOM_LABELS);
 
+		ButtonFactory.addToolTo(tb, editor, new RoomSelectionTool(), "select.room", customLabels);
+		
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new WallFigure()), "edit.createWall", customLabels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new WindowFigure()), "edit.createWindow", customLabels);
 		ButtonFactory.addToolTo(tb, editor, new CreationTool(new DoorFigure()), "edit.createDoor", customLabels);
