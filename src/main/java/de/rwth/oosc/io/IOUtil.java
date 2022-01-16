@@ -25,6 +25,7 @@ import org.jhotdraw.draw.GroupFigure;
 
 import de.rwth.oosc.furniture.CustomFurniture;
 
+// TODO: Store furnitures as xml, not svg!
 public class IOUtil {
 
 	public static final String CUSTOM_FURNITURE_PATH = "/de/rwth/oosc/flatdesigner/customfurnitures/";
