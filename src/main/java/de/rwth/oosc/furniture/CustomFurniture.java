@@ -14,12 +14,14 @@ import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.io.ImageOutputFormat;
 
+import de.rwth.oosc.figures.FurnitureFigure;
+
 public class CustomFurniture {
 
 	public static final double ICON_DIMENSION = 15;
 	
 	private String name;
-	private GroupFigure drawFigure;
+	private FurnitureFigure drawFigure;
 	private Icon icon;
 	
 	public CustomFurniture(GroupFigure gf) {
@@ -42,7 +44,7 @@ public class CustomFurniture {
 	}
 	
 	public CustomFurniture(String name, GroupFigure gf, Icon icon) {
-		this.drawFigure = gf;
+		this.drawFigure = new FurnitureFigure(gf);
 		this.name = name;
 		this.icon = icon;
 	}

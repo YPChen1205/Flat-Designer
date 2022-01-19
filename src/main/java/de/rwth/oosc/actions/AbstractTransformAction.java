@@ -19,11 +19,11 @@ public abstract class AbstractTransformAction extends AbstractSelectedAction{
 		var figures = getView().getSelectedFigures();
 		for(Figure figure: figures) {
 			figure.willChange();
-			flip(figure);
+			transform(figure);
 			figure.changed();
 		}
 	}
 	
-	protected abstract void flip(Figure figure);
+	protected abstract void transform(Figure figure);
 
 }

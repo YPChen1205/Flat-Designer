@@ -14,13 +14,10 @@ public class HorizontalFlipAction extends AbstractTransformAction {
 	}
 
 	@Override
-	protected void flip(Figure figure) {
+	protected void transform(Figure figure) {
 		var originalBonds = figure.getBounds();
 		AffineTransform tx = new AffineTransform(-1,0,0,1,originalBonds.getWidth()+2*originalBonds.getX(),0);
-		System.out.println(figure.getBounds());
 		figure.transform(tx);
-		
-		System.out.println(figure.getBounds());
 	}
 
 }

@@ -16,7 +16,6 @@ public class DesignerMenuBuilder extends DefaultMenuBuilder {
 
 	@Override
 	public void addExportFileItems(JMenu m, Application app, @Nullable View v) {
-		// TODO Auto-generated method stub
 		super.addExportFileItems(m, app, v);
 		ResourceBundleUtil customLabels = ResourceBundleUtil.getBundle(DrawApplicationModel.CUSTOM_LABELS);
 		

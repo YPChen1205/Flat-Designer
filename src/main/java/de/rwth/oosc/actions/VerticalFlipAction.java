@@ -14,7 +14,7 @@ public class VerticalFlipAction extends AbstractTransformAction {
 	}
 
 	@Override
-	protected void flip(Figure figure) {
+	protected void transform(Figure figure) {
 		AffineTransform tx = new AffineTransform(1,0,0,-1,0, figure.getBounds().getHeight() + 2*figure.getBounds().getY());
 		figure.transform(tx);
 	}
