@@ -27,7 +27,6 @@ public class WindowFigure extends SVGRectFigure {
 		double w = myWindow.getWidth();
 		double h = WallFigure.WALL_THICKNESS;
 		g.drawLine((int)x, (int)(y+h/2), (int)(x+w), (int)(y+h/2));
-		//g.setStroke(new BasicStroke());
 		setBounds(new Rectangle2D.Double(x,y,w,h));
 		super.drawStroke(g);
 		

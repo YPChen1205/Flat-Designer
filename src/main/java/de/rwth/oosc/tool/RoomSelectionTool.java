@@ -66,6 +66,7 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 	public void mousePressed(MouseEvent evt) {
 		super.mousePressed(evt);
 		clearRubberBand();
+		clearRoomSelection();
 	}
 
 	@Override
@@ -158,7 +159,7 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 			g.drawString("Area: " + area, (int) roomPath.getCenter().x, (int) roomPath.getCenter().y);
 		}
 
-	}
+	} 
 
 	private Set<BezierPath> roomPaths = new HashSet<>();
 	private Flat flat = null;
@@ -251,7 +252,15 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 	@Override
 	public void deactivate(DrawingEditor editor) {
 		super.deactivate(editor);
+		
 		clearHoverHandles();
+		clearRoomSelection();
+	}
+
+	private void clearRoomSelection() {
+		flat = null;
+		roomPaths.clear();
+		fireAreaInvalidated(getView().getDrawing().getBounds());
 	}
 
 }
