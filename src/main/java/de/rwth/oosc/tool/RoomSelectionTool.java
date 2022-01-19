@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.jgrapht.GraphPath;
 import org.jgrapht.alg.cycle.PatonCycleBase;
 import org.jgrapht.alg.interfaces.CycleBasisAlgorithm.CycleBasis;
 import org.jgrapht.graph.AsSubgraph;
@@ -27,8 +26,10 @@ import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.tool.DefaultSelectAreaTracker;
 import org.jhotdraw.geom.BezierPath;
 
+import de.rwth.oosc.figures.FurnitureFigure;
 import de.rwth.oosc.figures.structure.WallFigure;
 import de.rwth.oosc.tool.data.Flat;
+import de.rwth.oosc.tool.data.Room;
 
 public class RoomSelectionTool extends DefaultSelectAreaTracker {
 
@@ -145,7 +146,9 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 			}
 		}
 
-		for (var roomPath : roomPaths) {
+		for (var room : rooms) {
+			BezierPath roomPath = room.getRoomPath();
+			
 			g.setColor(new Color(0.2f, 0.6f, 0.7f, 0.3f));
 			g.fill(roomPath);
 
@@ -154,20 +157,25 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 				g.fillOval((int) pathNode.getControlPoint(0).x - 5, (int) pathNode.getControlPoint(0).y - 5, 10, 10);
 			}
 
-			double area = flat.computePathArea(roomPath);
+			double area = room.getArea();
 			g.setColor(Color.BLACK);
-			g.drawString("Area: " + area, (int) roomPath.getCenter().x, (int) roomPath.getCenter().y);
+			int y = (int) roomPath.getCenter().y;
+			g.drawString("Total area: " + area, (int) roomPath.getCenter().x, y);
+			y += 25;
+			g.drawString("Occupied area: " + room.getOccupiedArea(), (int) roomPath.getCenter().x, y);
+			y += 25;
+			g.drawString("Free area: " + room.getFreeArea(), (int) roomPath.getCenter().x, y);
 		}
 
 	} 
 
-	private Set<BezierPath> roomPaths = new HashSet<>();
+	private Set<Room> rooms = new HashSet<>();
 	private Flat flat = null;
 
 	private void selectGroup(boolean toggle) {
 		List<Figure> figures = getView().getDrawing().getChildren();
 		Set<WallFigure> walls = new HashSet<>();
-
+		
 		for (Figure f : figures) {
 			if (f instanceof WallFigure) {
 				walls.add((WallFigure) f);
@@ -185,22 +193,14 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 					component);
 			CycleBasis<Point2D.Double, DefaultEdge> cycleBasis = cycleBaseDetector.getCycleBasis();
 
-			Set<GraphPath<Point2D.Double, DefaultEdge>> rooms = flat
-					.getSelectedRooms(cycleBasis.getCyclesAsGraphPaths());
-			roomPaths.clear();
-			for (var room : rooms) {
-				List<Point2D.Double> vertexList = room.getVertexList();
-				BezierPath roomPath = new BezierPath();
-				if (vertexList.size() > 0) {
-					Point2D.Double p = room.getStartVertex();
-					roomPath.moveTo(p.x, p.y);
-					for (int i = 1; i < vertexList.size(); i++) {
-						p = vertexList.get(i);
-						roomPath.lineTo(p.x, p.y);
-					}
-					roomPath.setClosed(true);
+			rooms = flat.getSelectedRooms(cycleBasis.getCyclesAsGraphPaths());
+		}
+		
+		for (Room room : rooms) {
+			for (Figure f : figures) {
+				if (f instanceof FurnitureFigure) {
+					room.add((FurnitureFigure) f);
 				}
-				roomPaths.add(roomPath);
 			}
 		}
 	}
@@ -259,7 +259,7 @@ public class RoomSelectionTool extends DefaultSelectAreaTracker {
 
 	private void clearRoomSelection() {
 		flat = null;
-		roomPaths.clear();
+		rooms.clear();
 		fireAreaInvalidated(getView().getDrawing().getBounds());
 	}
 

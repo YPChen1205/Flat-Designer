@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -105,7 +106,7 @@ public class Flat {
 		return flatGraph;
 	}
 
-	public Set<GraphPath<Point2D.Double, DefaultEdge>> getSelectedRooms(
+	public Set<Room> getSelectedRooms(
 			Set<GraphPath<Point2D.Double, DefaultEdge>> cyclePaths) {
 		Map<GraphPath<Point2D.Double, DefaultEdge>, BezierFigure> roomMap = new HashMap<>();
 		for (var path : cyclePaths) {
@@ -132,7 +133,7 @@ public class Flat {
 
 		if (cyclePaths.size() > 0) {
 			if (cyclePaths.size() == 1) {
-				return cyclePaths;
+				return cyclePaths.stream().map((p) -> new Room(p)).collect(Collectors.toSet());
 			}
 
 			// remove all rooms contained in other rooms
@@ -237,7 +238,7 @@ public class Flat {
 			rooms.add(room1);
 		}
 
-		return rooms;
+		return rooms.stream().map((p) -> new Room(p)).collect(Collectors.toSet());
 	}
 
 	public Point2D.Double findConnector(List<Point2D.Double> original, List<Point2D.Double> rest) {
@@ -262,23 +263,6 @@ public class Flat {
 		}
 
 		return containsAll;
-	}
-
-	public double computePathArea(BezierPath path) {
-		if (!path.isClosed()) {
-			return 0;
-		}
-
-		double area = 0;
-		int last = 0;
-		for (int i = 1; i < path.size(); i++) {
-			area += (Math.abs(path.get(last).x[0] + path.get(i).x[0])
-					* Math.abs(path.get(last).y[0] - path.get(i).y[0])) / 2;
-			last = i;
-		}
-		area += Math.abs(path.get(last).x[0] + path.get(0).x[0]) * Math.abs(path.get(last).y[0] - path.get(0).y[0]) / 2;
-
-		return area;
 	}
 
 	public Set<Graph<Point2D.Double, DefaultEdge>> getAllRooms() {
