@@ -11,6 +11,7 @@ package de.rwth.oosc.io;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
@@ -22,6 +23,9 @@ import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.geom.BezierPath;
 
+import de.rwth.oosc.figures.structure.DoorFigure;
+import de.rwth.oosc.figures.structure.WallFigure;
+import de.rwth.oosc.figures.structure.WindowFigure;
 import de.rwth.oosc.figures.svg.Gradient;
 import de.rwth.oosc.figures.svg.LinearGradient;
 import de.rwth.oosc.figures.svg.RadialGradient;
@@ -190,5 +194,36 @@ public class DefaultSVGFigureFactory implements SVGFigureFactory {
                 isRelativeToFigureBounds,
                 tx);
     }
+
+	@Override
+	public Figure createWall(BezierPath[] beziers, Map<AttributeKey<?>, Object> attributes) {
+		WallFigure figure = new WallFigure();
+        figure.removeAllChildren();
+        for (int i=0; i < beziers.length; i++) {
+            SVGBezierFigure bf = new SVGBezierFigure();
+            bf.setBezierPath(beziers[i]);
+            figure.add(bf);
+        }
+        figure.setAttributes(attributes);
+        return figure;
+	}
+
+	@Override
+	public Figure createWindow(double x, double y, double w, double h, double rx, double ry,
+			Map<AttributeKey<?>, Object> attributes) {
+		WindowFigure figure = new WindowFigure();
+        figure.setBounds(new Point2D.Double(x,y),new Point2D.Double(x+w,y+h));
+        figure.setArc(rx, ry);
+        figure.setAttributes(attributes);
+        return figure;
+	}
+
+	@Override
+	public Figure createDoor(Double bounds, Map<AttributeKey<?>, Object> attributes) {
+		DoorFigure door = new DoorFigure();
+		door.setBounds(bounds);
+		door.setAttributes(attributes);
+		return door;
+	}
 
 }

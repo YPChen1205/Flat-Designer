@@ -47,6 +47,9 @@ import org.jhotdraw.gui.datatransfer.InputStreamTransferable;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.io.Base64;
 
+import de.rwth.oosc.figures.structure.DoorFigure;
+import de.rwth.oosc.figures.structure.WallFigure;
+import de.rwth.oosc.figures.structure.WindowFigure;
 import de.rwth.oosc.figures.svg.Gradient;
 import de.rwth.oosc.figures.svg.LinearGradient;
 import de.rwth.oosc.figures.svg.RadialGradient;
@@ -163,6 +166,12 @@ public class SVGOutputFormat implements OutputFormat {
             writeGElement(parent, (SVGGroupFigure) f);
         } else if (f instanceof SVGImageFigure) {
             writeImageElement(parent, (SVGImageFigure) f);
+        } else if (f instanceof WallFigure) {
+        	writeWallElement(parent, (WallFigure) f);
+        } else if (f instanceof WindowFigure) {
+        	writeWindowElement(parent, (WindowFigure)f);
+        } else if (f instanceof DoorFigure) {
+        	writeDoorElement(parent, (DoorFigure)f);
         } else if (f instanceof SVGPathFigure) {
             SVGPathFigure path = (SVGPathFigure) f;
             if (path.getChildCount() == 1) {
@@ -201,7 +210,27 @@ public class SVGOutputFormat implements OutputFormat {
         }
     }
 
-    protected void writeCircleElement(IXMLElement parent, SVGEllipseFigure f) throws IOException {
+    private void writeDoorElement(IXMLElement parent, DoorFigure f) throws IOException {
+		parent.addChild(createDoor(
+				document,
+				f.getBounds(),
+				f.getAttributes()
+				));
+		
+	}
+
+	private IXMLElement createDoor(IXMLElement doc, java.awt.geom.Rectangle2D.Double bounds, Map<AttributeKey<?>, Object> attributes) throws IOException {
+		IXMLElement elem = doc.createElement("door");
+		writeAttribute(elem,"x" , bounds.getX(), 0d);
+		writeAttribute(elem,"y" , bounds.getY(), 0d);
+		writeAttribute(elem,"width" , bounds.getWidth(), 0d);
+		writeShapeAttributes(elem, attributes);
+		writeOpacityAttribute(elem, attributes);
+		writeTransformAttribute(elem, attributes);
+		return elem;
+	}
+
+	protected void writeCircleElement(IXMLElement parent, SVGEllipseFigure f) throws IOException {
         parent.addChild(
                 createCircle(
                 document,
@@ -363,6 +392,59 @@ public class SVGOutputFormat implements OutputFormat {
         writeOpacityAttribute(elem, attributes);
         writeTransformAttribute(elem, attributes);
         writeAttribute(elem, "d", toPath(beziers), null);
+        return elem;
+    }
+    
+    protected void writeWallElement(IXMLElement parent, WallFigure f) throws IOException {
+        BezierPath[] beziers = new BezierPath[f.getChildCount()];
+        for (int i = 0; i < beziers.length; i++) {
+            beziers[i] = ((BezierFigure) f.getChild(i)).getBezierPath();
+        }
+        parent.addChild(createWall(
+                document,
+                beziers,
+                f.getAttributes()));
+    }
+    
+    protected IXMLElement createWall(IXMLElement doc,
+            BezierPath[] beziers,
+            Map<AttributeKey<?>, Object> attributes) throws IOException {
+    	IXMLElement elem = doc.createElement("wall");
+        writeShapeAttributes(elem, attributes);
+        writeOpacityAttribute(elem, attributes);
+        writeTransformAttribute(elem, attributes);
+        writeAttribute(elem, "d", toPath(beziers), null);
+        return elem;
+    }
+    
+    protected void writeWindowElement(IXMLElement parent, SVGRectFigure f) throws IOException {
+        parent.addChild(
+                createWindow(
+                document,
+                f.getX(),
+                f.getY(),
+                f.getWidth(),
+                f.getHeight(),
+                f.getArcWidth(),
+                f.getArcHeight(),
+                f.getAttributes()));
+    }
+
+    protected IXMLElement createWindow(IXMLElement doc,
+            double x, double y, double width, double height,
+            double rx, double ry,
+            Map<AttributeKey<?>, Object> attributes)
+            throws IOException {
+        IXMLElement elem = doc.createElement("window");
+        writeAttribute(elem, "x", x, 0d);
+        writeAttribute(elem, "y", y, 0d);
+        writeAttribute(elem, "width", width, 0d);
+        writeAttribute(elem, "height", height, 0d);
+        writeAttribute(elem, "rx", rx, 0d);
+        writeAttribute(elem, "ry", ry, 0d);
+        writeShapeAttributes(elem, attributes);
+        writeOpacityAttribute(elem, attributes);
+        writeTransformAttribute(elem, attributes);
         return elem;
     }
 

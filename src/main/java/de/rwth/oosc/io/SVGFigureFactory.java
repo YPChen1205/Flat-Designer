@@ -11,6 +11,7 @@ package de.rwth.oosc.io;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
@@ -63,6 +64,17 @@ public interface SVGFigureFactory {
     public Figure createPath(
             BezierPath[] beziers, 
             Map<AttributeKey<?>,Object> attributes);
+    
+    public Figure createWall(
+            BezierPath[] beziers, 
+            Map<AttributeKey<?>,Object> attributes);
+    
+    public Figure createWindow(
+            double x, double y, double width, double height, double rx, double ry, 
+            Map<AttributeKey<?>,Object> attributes);
+    
+    public Figure createDoor(
+    		Rectangle2D.Double bounds, Map<AttributeKey<?>,Object> attributes);
 
     public CompositeFigure createG(Map<AttributeKey<?>,Object> attributes);
     
