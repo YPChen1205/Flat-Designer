@@ -23,6 +23,7 @@ import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.geom.BezierPath;
 
+import de.rwth.oosc.figures.FurnitureFigure;
 import de.rwth.oosc.figures.structure.DoorFigure;
 import de.rwth.oosc.figures.structure.WallFigure;
 import de.rwth.oosc.figures.structure.WindowFigure;
@@ -224,6 +225,13 @@ public class DefaultSVGFigureFactory implements SVGFigureFactory {
 		door.setBounds(bounds);
 		door.setAttributes(attributes);
 		return door;
+	}
+
+	@Override
+	public Figure createFurniture(SVGGroupFigure furnitureFigure, Map<AttributeKey<?>,Object> attributes) {
+		FurnitureFigure f = new FurnitureFigure(furnitureFigure);
+		f.setAttributes(attributes);
+		return f;
 	}
 
 }

@@ -1,13 +1,12 @@
 package de.rwth.oosc.figures;
 
-import org.jhotdraw.draw.AbstractCompositeFigure;
-import org.jhotdraw.draw.GroupFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 
-public class FurnitureFigure extends AbstractCompositeFigure {
+public class FurnitureFigure extends SVGGroupFigure {
 
 	private static final long serialVersionUID = 1L;
 	
-	public FurnitureFigure(GroupFigure figure) {
+	public FurnitureFigure(SVGGroupFigure figure) {
 		super();
 		add(figure);
 	}

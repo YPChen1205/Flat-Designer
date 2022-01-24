@@ -47,6 +47,7 @@ import org.jhotdraw.gui.datatransfer.InputStreamTransferable;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.io.Base64;
 
+import de.rwth.oosc.figures.FurnitureFigure;
 import de.rwth.oosc.figures.structure.DoorFigure;
 import de.rwth.oosc.figures.structure.WallFigure;
 import de.rwth.oosc.figures.structure.WindowFigure;
@@ -162,6 +163,8 @@ public class SVGOutputFormat implements OutputFormat {
             } else {
                 writeEllipseElement(parent, ellipse);
             }
+        } else if (f instanceof FurnitureFigure) {
+        	writeFurnitureElement(parent, (FurnitureFigure) f);
         } else if (f instanceof SVGGroupFigure) {
             writeGElement(parent, (SVGGroupFigure) f);
         } else if (f instanceof SVGImageFigure) {
@@ -338,8 +341,24 @@ public class SVGOutputFormat implements OutputFormat {
         writeTransformAttribute(elem, attributes);
         return elem;
     }
+    
+    protected void writeFurnitureElement(IXMLElement parent, FurnitureFigure f) throws IOException {
+    	IXMLElement elem = createFurniture(document, f.getAttributes());
+    	for (Figure child : f.getChildren()) {
+            writeElement(elem, child);
+        }
+        parent.addChild(elem);
+    }
+    
+    private IXMLElement createFurniture(IXMLElement doc, Map<AttributeKey<?>, Object> attributes) throws IOException {
+		IXMLElement elem = doc.createElement("furniture");
+		writeShapeAttributes(elem, attributes);
+		writeOpacityAttribute(elem, attributes);
+		writeTransformAttribute(elem, attributes);
+		return elem;
+	}
 
-    protected void writeGElement(IXMLElement parent, SVGGroupFigure f) throws IOException {
+	protected void writeGElement(IXMLElement parent, SVGGroupFigure f) throws IOException {
         IXMLElement elem = createG(document, f.getAttributes());
         for (Figure child : f.getChildren()) {
             writeElement(elem, child);

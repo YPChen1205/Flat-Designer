@@ -103,6 +103,7 @@ import org.jhotdraw.xml.css.CSSParser;
 import de.rwth.oosc.figures.svg.Gradient;
 import de.rwth.oosc.figures.svg.SVGAttributeKeys.TextAnchor;
 import de.rwth.oosc.figures.svg.SVGFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 import de.rwth.oosc.figures.svg.css.StyleManager;
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
@@ -465,6 +466,8 @@ public class SVGInputFormat implements InputFormat {
                 f = null;
             } else if ("ellipse".equals(name)) {
                 f = readEllipseElement(elem);
+            } else if ("furniture".equals(name)) {
+            	f = readFurnitureElement(elem);
             } else if ("g".equals(name)) {
                 f = readGElement(elem);
             } else if ("image".equals(name)) {
@@ -554,6 +557,23 @@ public class SVGInputFormat implements InputFormat {
             @SuppressWarnings("unused")
 			Figure childFigure = readElement(child);
         }
+    }
+    
+    private Figure readFurnitureElement(IXMLElement elem) throws IOException {
+    	HashMap<AttributeKey<?>, Object> a = new HashMap<AttributeKey<?>, Object>();
+        readCoreAttributes(elem, a);
+        readOpacityAttribute(elem, a);
+        readTransformAttribute(elem, a);
+    	
+    	Figure f = null;
+		try {
+			SVGGroupFigure gf = (SVGGroupFigure) readGElement(elem.getChildAtIndex(0));
+			f = factory.createFurniture(gf, a);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+    	
+    	return f;
     }
 
     /**

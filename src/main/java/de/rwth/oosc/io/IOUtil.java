@@ -21,11 +21,12 @@ import javax.swing.ImageIcon;
 import org.apache.commons.io.FileUtils;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.GroupFigure;
+import org.jhotdraw.draw.Figure;
 
+import de.rwth.oosc.figures.FurnitureFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 import de.rwth.oosc.furniture.CustomFurniture;
 
-// TODO: Store furnitures as xml, not svg!
 public class IOUtil {
 
 	public static final String CUSTOM_FURNITURE_PATH = "/de/rwth/oosc/flatdesigner/customfurnitures/";
@@ -113,11 +114,18 @@ public class IOUtil {
 
 		// load XML
 		inFormat.read(furnitureFile.toURI(), drawing);
-		GroupFigure f = (GroupFigure) drawing.getChild(0).clone();
-
+		Figure figure = drawing.getChild(0).clone();
+		
 		// load image for icon
 		BufferedImage image = ImageIO.read(iconFile);
 		Icon icon = new ImageIcon(image);
+		
+		FurnitureFigure f;
+		if (figure instanceof FurnitureFigure) {
+			f = (FurnitureFigure) figure;
+		} else {
+			f = new FurnitureFigure((SVGGroupFigure) figure);
+		}
 
 		return new CustomFurniture(furnitureFile.getName().substring(0, furnitureFile.getName().length() - 4), f, icon);
 	}
