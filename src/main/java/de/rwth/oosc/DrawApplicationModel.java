@@ -39,7 +39,6 @@ import org.jhotdraw.draw.action.BringToFrontAction;
 import org.jhotdraw.draw.action.ButtonFactory;
 import org.jhotdraw.draw.action.GroupAction;
 import org.jhotdraw.draw.action.SendToBackAction;
-import org.jhotdraw.draw.action.UngroupAction;
 import org.jhotdraw.draw.decoration.ArrowTip;
 import org.jhotdraw.draw.event.ToolListener;
 import org.jhotdraw.draw.tool.CreationTool;
@@ -76,6 +75,8 @@ import de.rwth.oosc.furniture.action.AddFurnitureAction;
 import de.rwth.oosc.furniture.action.CreateFurnitureCatalogAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
 import de.rwth.oosc.furniture.action.RemoveFurnitureCatalogAction;
+import de.rwth.oosc.furniture.action.SVGUngroupAction;
+import de.rwth.oosc.tool.FurnitureCreationTool;
 import de.rwth.oosc.tool.PathTool;
 import de.rwth.oosc.tool.RoomSelectionTool;
 import de.rwth.oosc.tool.ToolButtonListener;
@@ -137,8 +138,8 @@ public class DrawApplicationModel extends DefaultApplicationModel {
         a.add(null); // separator
 
         a.add(new GroupAction(editor, new SVGGroupFigure()));
-        a.add(new UngroupAction(editor));
-
+        a.add(new SVGUngroupAction(editor));
+        
         a.add(null); // separator
 
         a.add(new BringToFrontAction(editor));
@@ -234,7 +235,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
 					JToggleButton button = new JToggleButton(furniture.getIcon());
 					button.setPreferredSize(new Dimension(22, 22));
 					button.setToolTipText(furniture.getName());
-					Tool furnitureCreationTool = new CreationTool(furniture.getFigure());
+					Tool furnitureCreationTool = new FurnitureCreationTool(furniture.getFigure());
 					button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 					button.setFocusable(false);
 					furnitureCreationTool.addToolListener((ToolListener) tb.getClientProperty(TOOLBAR_HANDLER_PROPKEY));

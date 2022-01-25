@@ -11,10 +11,10 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.GroupFigure;
 import org.jhotdraw.draw.io.ImageOutputFormat;
 
 import de.rwth.oosc.figures.FurnitureFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 
 public class CustomFurniture {
 
@@ -24,11 +24,17 @@ public class CustomFurniture {
 	private FurnitureFigure drawFigure;
 	private Icon icon;
 	
-	public CustomFurniture(GroupFigure gf) {
+	public CustomFurniture(String name, FurnitureFigure f, Icon icon) {
+		this.drawFigure = f;
+		this.name = name;
+		this.icon = icon;
+	}
+	
+	public CustomFurniture(SVGGroupFigure gf) {
 		this("", gf);
 	}
 	
-	public CustomFurniture(String name, GroupFigure gf) {
+	public CustomFurniture(String name, SVGGroupFigure gf) {
 		this(name, gf, null);
 		
 		Figure f = gf.clone();
@@ -43,10 +49,8 @@ public class CustomFurniture {
 		setIcon(new ImageIcon(image));
 	}
 	
-	public CustomFurniture(String name, GroupFigure gf, Icon icon) {
-		this.drawFigure = new FurnitureFigure(gf);
-		this.name = name;
-		this.icon = icon;
+	public CustomFurniture(String name, SVGGroupFigure gf, Icon icon) {
+		this(name, new FurnitureFigure(gf), icon);
 	}
 	
 	public Figure getFigure() {

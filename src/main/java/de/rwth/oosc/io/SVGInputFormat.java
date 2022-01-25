@@ -7,6 +7,46 @@
  */
 package de.rwth.oosc.io;
 
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.FILL_GRADIENT;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.FILL_OPACITY;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.LINK;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.LINK_TARGET;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.OPACITY;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.STROKE_GRADIENT;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.STROKE_OPACITY;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.TEXT_ALIGN;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.TEXT_ANCHOR;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.VIEWPORT_FILL;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.VIEWPORT_FILL_OPACITY;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.VIEWPORT_HEIGHT;
+import static de.rwth.oosc.figures.svg.SVGAttributeKeys.VIEWPORT_WIDTH;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_ABSOLUTE_FONT_SIZES;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_COLORS;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_FILL_RULES;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_NAMESPACE;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_RELATIVE_FONT_SIZES;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_STROKE_LINECAPS;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_STROKE_LINEJOINS;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_TEXT_ALIGNS;
+import static de.rwth.oosc.figures.svg.SVGConstants.SVG_TEXT_ANCHORS;
+import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
+import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
+import static org.jhotdraw.draw.AttributeKeys.FONT_ITALIC;
+import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
+import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINE;
+import static org.jhotdraw.draw.AttributeKeys.IS_STROKE_DASH_FACTOR;
+import static org.jhotdraw.draw.AttributeKeys.IS_STROKE_MITER_LIMIT_FACTOR;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_DASH_PHASE;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_JOIN;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
+import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.datatransfer.DataFlavor;
@@ -31,7 +71,6 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,17 +79,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 import java.util.StringTokenizer;
+
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.IXMLReader;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLException;
-import net.n3.nanoxml.XMLParserFactory;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.DefaultDrawing;
@@ -58,6 +93,7 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.io.InputFormat;
 import org.jhotdraw.geom.BezierPath;
+import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.io.Base64;
 import org.jhotdraw.io.StreamPosTokenizer;
 import org.jhotdraw.text.FontFormatter;
@@ -65,11 +101,16 @@ import org.jhotdraw.util.LocaleUtil;
 import org.jhotdraw.xml.css.CSSParser;
 
 import de.rwth.oosc.figures.svg.Gradient;
+import de.rwth.oosc.figures.svg.SVGAttributeKeys.TextAnchor;
 import de.rwth.oosc.figures.svg.SVGFigure;
+import de.rwth.oosc.figures.svg.SVGGroupFigure;
 import de.rwth.oosc.figures.svg.css.StyleManager;
-
-import static de.rwth.oosc.figures.svg.SVGConstants.*;
-import static de.rwth.oosc.figures.svg.SVGAttributeKeys.*;
+import net.n3.nanoxml.IXMLElement;
+import net.n3.nanoxml.IXMLParser;
+import net.n3.nanoxml.IXMLReader;
+import net.n3.nanoxml.StdXMLReader;
+import net.n3.nanoxml.XMLException;
+import net.n3.nanoxml.XMLParserFactory;
 
 /**
  * SVGInputFormat.
@@ -425,6 +466,8 @@ public class SVGInputFormat implements InputFormat {
                 f = null;
             } else if ("ellipse".equals(name)) {
                 f = readEllipseElement(elem);
+            } else if ("furniture".equals(name)) {
+            	f = readFurnitureElement(elem);
             } else if ("g".equals(name)) {
                 f = readGElement(elem);
             } else if ("image".equals(name)) {
@@ -434,6 +477,12 @@ public class SVGInputFormat implements InputFormat {
             } else if ("linearGradient".equals(name)) {
                 readLinearGradientElement(elem);
                 f = null;
+            } else if ("wall".equals(name)) {
+            	f = readWallElement(elem);
+            } else if ("window".equals(name)) {
+            	f = readWindowElement(elem);
+            } else if ("door".equals(name)) {
+            	f = readDoorElement(elem);
             } else if ("path".equals(name)) {
                 f = readPathElement(elem);
             } else if ("polygon".equals(name)) {
@@ -485,7 +534,21 @@ public class SVGInputFormat implements InputFormat {
         return f;
     }
 
-    /**
+    private Figure readDoorElement(IXMLElement elem) throws IOException {
+    	double x = toNumber(elem, readAttribute(elem, "x", "0"));
+        double y = toNumber(elem, readAttribute(elem, "y", "0"));
+        double w = toWidth(elem, readAttribute(elem, "width", "0"));
+      
+        HashMap<AttributeKey<?>, Object> a = new HashMap<AttributeKey<?>, Object>();
+        readCoreAttributes(elem, a);
+        readTransformAttribute(elem, a);
+        readOpacityAttribute(elem, a);
+        readShapeAttributes(elem, a);
+        Figure door = factory.createDoor(new Rectangle2D.Double(x,y,w,w), a);
+		return door;
+	}
+
+	/**
      * Reads an SVG "defs" element.
      */
     private void readDefsElement(IXMLElement elem)
@@ -494,6 +557,23 @@ public class SVGInputFormat implements InputFormat {
             @SuppressWarnings("unused")
 			Figure childFigure = readElement(child);
         }
+    }
+    
+    private Figure readFurnitureElement(IXMLElement elem) throws IOException {
+    	HashMap<AttributeKey<?>, Object> a = new HashMap<AttributeKey<?>, Object>();
+        readCoreAttributes(elem, a);
+        readOpacityAttribute(elem, a);
+        readTransformAttribute(elem, a);
+    	
+    	Figure f = null;
+		try {
+			SVGGroupFigure gf = (SVGGroupFigure) readGElement(elem.getChildAtIndex(0));
+			f = factory.createFurniture(gf, a);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+    	
+    	return f;
     }
 
     /**
@@ -675,6 +755,35 @@ public class SVGInputFormat implements InputFormat {
         double ry = toNumber(elem, ryValue.equals("none") ? "0" : ryValue);
 
         Figure figure = factory.createRect(x, y, w, h, rx, ry, a);
+        elementObjects.put(elem, figure);
+        return figure;
+    }
+    
+    private Figure readWindowElement(IXMLElement elem)
+            throws IOException {
+        HashMap<AttributeKey<?>, Object> a = new HashMap<AttributeKey<?>, Object>();
+        readCoreAttributes(elem, a);
+        readTransformAttribute(elem, a);
+        readOpacityAttribute(elem, a);
+        readShapeAttributes(elem, a);
+
+        double x = toNumber(elem, readAttribute(elem, "x", "0"));
+        double y = toNumber(elem, readAttribute(elem, "y", "0"));
+        double w = toWidth(elem, readAttribute(elem, "width", "0"));
+        double h = toHeight(elem, readAttribute(elem, "height", "0"));
+
+        String rxValue = readAttribute(elem, "rx", "none");
+        String ryValue = readAttribute(elem, "ry", "none");
+        if ("none".equals(rxValue)) {
+            rxValue = ryValue;
+        }
+        if ("none".equals(ryValue)) {
+            ryValue = rxValue;
+        }
+        double rx = toNumber(elem, rxValue.equals("none") ? "0" : rxValue);
+        double ry = toNumber(elem, ryValue.equals("none") ? "0" : ryValue);
+
+        Figure figure = factory.createWindow(x, y, w, h, rx, ry, a);
         elementObjects.put(elem, figure);
         return figure;
     }
@@ -893,6 +1002,21 @@ public class SVGInputFormat implements InputFormat {
         BezierPath[] beziers = toPath(elem, readAttribute(elem, "d", ""));
 
         Figure figure = factory.createPath(beziers, a);
+        elementObjects.put(elem, figure);
+        return figure;
+    }
+    
+    private Figure readWallElement(IXMLElement elem)
+            throws IOException {
+        HashMap<AttributeKey<?>, Object> a = new HashMap<AttributeKey<?>, Object>();
+        readCoreAttributes(elem, a);
+        readTransformAttribute(elem, a);
+        readOpacityAttribute(elem, a);
+        readShapeAttributes(elem, a);
+
+        BezierPath[] beziers = toPath(elem, readAttribute(elem, "d", ""));
+
+        Figure figure = factory.createWall(beziers, a);
         elementObjects.put(elem, figure);
         return figure;
     }

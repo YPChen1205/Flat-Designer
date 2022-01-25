@@ -11,13 +11,13 @@ import javax.swing.JToolBar;
 
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.event.ToolListener;
-import org.jhotdraw.draw.tool.CreationTool;
 import org.jhotdraw.draw.tool.Tool;
 import org.jhotdraw.gui.JPopupButton;
 
 import de.rwth.oosc.furniture.CustomFurniture;
 import de.rwth.oosc.furniture.FurnitureModel;
 import de.rwth.oosc.furniture.action.RemoveFurnitureAction;
+import de.rwth.oosc.tool.FurnitureCreationTool;
 import de.rwth.oosc.tool.ToolButtonListener;
 
 public class JFurnitureToolBar extends JToolBar implements PropertyChangeListener {
@@ -71,7 +71,7 @@ public class JFurnitureToolBar extends JToolBar implements PropertyChangeListene
 				JToggleButton button = new JToggleButton(furniture.getIcon());
 				button.setPreferredSize(new Dimension(22, 22));
 				button.setToolTipText(furniture.getName());
-				Tool furnitureCreationTool = new CreationTool(furniture.getFigure());
+				Tool furnitureCreationTool = new FurnitureCreationTool(furniture.getFigure());
 				button.addItemListener(new ToolButtonListener(furnitureCreationTool, editor, btnCatalog));
 				button.setFocusable(false);
 				furnitureCreationTool.addToolListener((ToolListener) getClientProperty(handlerKey));
