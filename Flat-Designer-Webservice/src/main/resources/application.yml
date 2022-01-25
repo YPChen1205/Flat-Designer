@@ -1,0 +1,9 @@
+spring:
+    datasource:
+        url: jdbc:mysql://mysql-service.sample-project.svc.cluster.local/demo
+        username: user
+        password: user1234
+        driver-class-name: com.mysql.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
