@@ -15,22 +15,34 @@ import de.rwth.oosc.flatdesigner.api.ImageRepository;
 import de.rwth.oosc.flatdesigner.bean.Image;
 
 @Controller
-public class WebController {
-	
+public class ModController {
+
 	@Autowired
 	private ImageRepository repository;
 	
-	@GetMapping("/images")
+	@GetMapping("/mod/images")
 	public String getImages(Model model) {
-		List<Image> images = StreamSupport.stream(repository.findAll().spliterator(), false).filter(Image::isApproved).toList();
+		List<Image> images = StreamSupport.stream(repository.findAll().spliterator(), false).toList();
 		model.addAttribute("images", images);
+		model.addAttribute("isMod", true);
 		return "images";
 	}
 	
-	@GetMapping("/delete/{id}")
-	public String deleteImage(@PathVariable("id") long id, HttpServletRequest request) {
-		repository.deleteById(id);
+	@GetMapping("/mod/images/{id}/approve")
+	public String approveImage(@PathVariable("id") long id, HttpServletRequest request) {
+		Image image = repository.findById(id);
+		image.setApproved(true);
+		repository.save(image);
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ referer;
+		return "redirect:" + referer;
+	}
+	
+	@GetMapping("/mod/images/{id}/deny")
+	public String denyImage(@PathVariable("id") long id, HttpServletRequest request) {
+		Image image = repository.findById(id);
+		image.setApproved(false);
+		repository.save(image);
+		String referer = request.getHeader("Referer");
+		return "redirect:" + referer;
 	}
 }

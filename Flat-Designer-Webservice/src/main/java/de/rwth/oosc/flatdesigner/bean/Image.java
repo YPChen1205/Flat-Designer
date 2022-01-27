@@ -3,15 +3,24 @@ package de.rwth.oosc.flatdesigner.bean;
 import java.net.URL;
 import java.time.LocalDateTime;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@Entity
 @JsonAutoDetect
 public class Image {
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	@JsonProperty
-    private int id;
+    private long id;
 
     @JsonProperty
     private URL url;
@@ -21,20 +30,26 @@ public class Image {
     private LocalDateTime publishedAt;
 
     @JsonProperty
-    private boolean favorite;
-
-    public Image(int id, URL url) {
-        this(id, url, false);
+    private boolean approved;
+    
+    @JsonIgnore
+    private byte[] imageData;
+    
+    public Image() {
+    	this(null);
+    }
+    
+    public Image(URL url) {
+        this(url, false);
     }
 
-    public Image(int id, URL url, boolean favorite) {
-        this.id = id;
+    public Image(URL url, boolean approved) {
         this.url = url;
         this.publishedAt = LocalDateTime.now();
-        this.favorite = favorite;
+        this.approved = approved;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -50,13 +65,23 @@ public class Image {
      * Get favorite status of image (an image can be marked to be a favorite).
      * @return true if image is favorite, false otherwise
      */
-    public boolean isFavorite() {
-        return favorite;
+    public boolean isApproved() {
+        return approved;
     }
 
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+    
+    public void setUrl(URL url) {
+    	this.url = url;
+    }
+    
+    public void setImageData(byte[] imageData) {
+    	this.imageData = imageData;
     }
 
-	
+    public byte[] getImageData() {
+		return imageData;
+	}
 }

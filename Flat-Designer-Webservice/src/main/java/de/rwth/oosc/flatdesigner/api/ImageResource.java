@@ -1,21 +1,27 @@
 package de.rwth.oosc.flatdesigner.api;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
-import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import de.rwth.oosc.flatdesigner.bean.Image;
 
@@ -30,20 +36,17 @@ public class ImageResource {
     /**
      * List of all images
      */
-    private List<Image> images = new ArrayList<>();
-
-    /**
-     * Next new image's id
-     */
-    private int nextId = 0;
+    @Autowired
+    private ImageRepository imageRepository;
 
     /**
      * Get all images in the standard representation format defined by the Domain Entities
      **/
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<Image> getAllImages() {
-
+    	List<Image> images = StreamSupport.stream(imageRepository.findAll().spliterator(), false).toList();
         logger.info("Sending {} Images", images.size());
+        
         return images;
     }
 
@@ -53,7 +56,7 @@ public class ImageResource {
      * @return Image object or error 404 not found if no image exists for the given id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Image getImageRequest(@PathVariable("id") int id) {
+    public Image getImageRequest(@PathVariable("id") long id) {
 
         Image image = getImageForGivenId(id) ;
         if(image != null) {
@@ -62,60 +65,45 @@ public class ImageResource {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found.");
         }
     }
+    
+    @HystrixCommand(fallbackMethod = "fallback")
+    @GetMapping("/{id}/show")
+    public void showImage(@PathVariable("id") long id, HttpServletResponse response) throws IOException {
+    	
+		Image image = imageRepository.findById(id);
+    	response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
+		response.getOutputStream().write(image.getImageData());
+		response.getOutputStream().close();
+		
+    }
 
     @PostMapping("/create")
-    public Image createImageRequest(/* todo */) {
-        // todo: implement (you may need to add more than just the method signature and body)
+    public Image createImageRequest(@RequestPart("image") Part image) {
+    	try {
+			return createImage(image.getInputStream().readAllBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         return null;
-    }
-
-    public Image updateImagePropertiesRequest(/* todo */) {
-        // todo: implement (you may need to add more than just the method signature and body)
-        return null;
-    }
-
-    public void deleteImageRequest(/* todo */) {
-        // todo: implement (you may need to add more than just the method signature and body)
-    }
-
-    /**
-     * Setup called on initialization
-     */
-    @PostConstruct
-    public void setup() throws Exception {
-
-        logger = LoggerFactory.getLogger(this.getClass());
-
-        // add some demonstration data
-        // todo: remove this once you implemented persistence
-        createImage(new URL("http://via.placeholder.com/640x360")).setFavorite(true);
-        for (int id = 1; id <= 12; id++) {
-            createImage(new URL("http://via.placeholder.com/640x360"));
-        }
-    }
-
-    /**
-     * Upload and create a new image
-     * @param imageData image data string
-     * @return created image
-     * @throws MalformedURLException
-     */
-    private Image uploadAndCreateImage(String imageData) throws MalformedURLException {
-
-        // todo: implement
-
-        return createImage(new URL("http://todo"));
     }
 
     /**
      * Create a new image
      * @param url URL to the image
      * @return created image
+     * @throws MalformedURLException 
      */
-    private Image createImage(URL url) {
-        Image image = new Image(nextId, url);
-        nextId++;
-        images.add(image);
+    @HystrixCommand(fallbackMethod = "fallback")
+    private Image createImage(byte[] imageData) throws MalformedURLException {
+    	
+    	Image image = new Image();
+        
+       
+    	image.setImageData(imageData);
+        imageRepository.save(image);
+		image.setUrl(new URL("http://localhost:8080/api/images/" + image.getId() + "/show"));
+		imageRepository.save(image);
+        
         return image;
     }
 
@@ -124,8 +112,12 @@ public class ImageResource {
      * @param id id
      * @return image with given id or null
      */
-    private Image getImageForGivenId(int id) {
-        return images.stream().filter(img -> img.getId() == id).findAny().orElse(null);
+    private Image getImageForGivenId(long id) {
+    	return imageRepository.findById(id);
     }
 
+    @SuppressWarnings("unused")
+	private String fallback() {
+    	return "An error occured in the service";
+    }
 }
