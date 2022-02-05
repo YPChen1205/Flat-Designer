@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+	<head th:replace="fragments/head :: head">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Hello Thymeleaf</h1>
+            <form method="POST" action="/api/images/create" enctype="multipart/form-data" >
+                <input type="file" name="image" />
+                <input type="submit" value="Upload image" />
+            </form>
+        </div>
+    </body>
+</html>

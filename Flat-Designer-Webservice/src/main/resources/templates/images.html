@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head th:replace="fragments/head :: head">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Images</h1>
+            <ul>
+                <li th:each="image: ${images}">
+                    <span th:if="${isMod}">
+                        <a th:if="${image.approved}" th:href="@{/mod/images/{id}/deny(id=${image.id})}" class="btn btn-danger">Deny</a>
+                        <a th:unless="${image.approved}" th:href="@{/mod/images/{id}/approve(id=${image.id})}" class="btn btn-success">Approve</a>
+                        <a th:href="@{/delete/{id}(id=${image.id})}" class="btn btn-danger">Delete</a>
+                    </span>
+                    
+                    <a th:href="${image.url}" target="_blank" th:text="${image.id}" />
+                    <img th:src="${image.url}" />
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>
