@@ -11,6 +11,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 import de.rwth.oosc.actions.ExportAction;
 import de.rwth.oosc.actions.ImportAction;
+import de.rwth.oosc.actions.PublishAction;
 
 public class DesignerMenuBuilder extends DefaultMenuBuilder {
 
@@ -28,5 +29,9 @@ public class DesignerMenuBuilder extends DefaultMenuBuilder {
 		Action exportAction = new ExportAction(app, v);
 		customLabels.configureAction(exportAction, ExportAction.ID);
 		add(m, exportAction);
+		
+		Action uploadAction = new PublishAction(app, v);
+		customLabels.configureAction(uploadAction, PublishAction.ID);
+		add(m, uploadAction);
 	}
 }

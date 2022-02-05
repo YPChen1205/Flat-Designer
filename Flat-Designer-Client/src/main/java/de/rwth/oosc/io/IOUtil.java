@@ -37,8 +37,9 @@ public class IOUtil {
 	public static Map<String, Set<CustomFurniture>> loadDefaultModel() {
 		
 		Map<String, Set<CustomFurniture>> fMap = new HashMap<String, Set<CustomFurniture>>();
-
+		
 		try {
+			System.out.println(IOUtil.class.getProtectionDomain().getCodeSource().getLocation());
 			fMap = load(new File(IOUtil.class.getResource(CUSTOM_FURNITURE_PATH).toURI()).getAbsolutePath());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
