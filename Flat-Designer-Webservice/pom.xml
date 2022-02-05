@@ -12,9 +12,9 @@
 	</parent>
 
 	<artifactId>Flat-Designer-Webservice</artifactId>
-	<groupId>de.rwth.oosc</groupId>
-	<name>Spring Boot Simple Sample</name>
-	<description>Spring Boot Simple Sample</description>
+	<groupId>de.chen</groupId>
+	<name>Flatdesigner Webservice</name>
+	<description>Flatdesigner Webservic</description>
 	<version>1.0-SNAPSHOT</version>
 	<url>http://projects.spring.io/spring-boot/</url>
 
