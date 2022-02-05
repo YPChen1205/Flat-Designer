@@ -45,4 +45,8 @@ public class ModController {
 		String referer = request.getHeader("Referer");
 		return "redirect:" + referer;
 	}
-}
+	
+	private String fallback() {
+		return "An error occured";
+	}
+	}

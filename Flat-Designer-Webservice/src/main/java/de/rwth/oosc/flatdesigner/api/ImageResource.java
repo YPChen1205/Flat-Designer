@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class ImageResource {
 	/**
      * A a logger you may use for logging
      */
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(ImageResource.class);
 
     /**
      * List of all images
@@ -66,12 +67,13 @@ public class ImageResource {
         }
     }
     
-    @HystrixCommand(fallbackMethod = "fallback")
+    @HystrixCommand(fallbackMethod = "showFallback")
     @GetMapping("/{id}/show")
     public void showImage(@PathVariable("id") long id, HttpServletResponse response) throws IOException {
     	
 		Image image = imageRepository.findById(id);
     	response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
+    	logger.debug(""+ image.getImageData().length);
 		response.getOutputStream().write(image.getImageData());
 		response.getOutputStream().close();
 		
@@ -93,7 +95,7 @@ public class ImageResource {
      * @return created image
      * @throws MalformedURLException 
      */
-    @HystrixCommand(fallbackMethod = "fallback")
+    @HystrixCommand(fallbackMethod = "createFallback")
     private Image createImage(byte[] imageData) throws MalformedURLException {
     	
     	Image image = new Image();
@@ -117,7 +119,12 @@ public class ImageResource {
     }
 
     @SuppressWarnings("unused")
-	private String fallback() {
-    	return "An error occured in the service";
+	private void showFallback(long id, HttpServletResponse response) {
+    	logger.error("An error occured in the service while showing an image.");
+    }
+    
+    @SuppressWarnings("unused")
+	private Image createFallback(byte[] imageData) {
+    	return null;
     }
 }
